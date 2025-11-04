@@ -15,6 +15,132 @@ from rest_framework.permissions import IsAuthenticated
 from .models import User
 from .serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer
 
+
+from django.shortcuts import redirect
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from urllib.parse import urlencode
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def get_tokens_for_user(user):
+    """Generate JWT tokens for a user"""
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+@csrf_exempt
+def oauth_redirect_handler(request):
+    """
+    This view is called after successful OAuth authentication.
+    It generates JWT tokens and redirects to the frontend with tokens in URL.
+    """
+    logger.info("=== OAuth Redirect Handler Called ===")
+    logger.info(f"User authenticated: {request.user.is_authenticated}")
+    logger.info(f"User: {request.user}")
+    
+    if not request.user.is_authenticated:
+        logger.error("User not authenticated in redirect handler")
+        # Redirect to login page
+        return redirect(f"{settings.FRONTEND_URL}/login?error=auth_failed")
+    
+    try:
+        user = request.user
+        
+        # Generate JWT tokens
+        tokens = get_tokens_for_user(user)
+        
+        # Check if user needs onboarding
+        is_new_user = not getattr(user, 'is_profile_complete', True)
+        
+        # Choose redirect URL based on user status
+        if is_new_user:
+            base_url = f"{settings.FRONTEND_URL}/onboarding"
+        else:
+            base_url = f"{settings.FRONTEND_URL}/dashboard"
+        
+        # Prepare user data to pass
+        user_data = {
+            'access': tokens['access'],
+            'refresh': tokens['refresh'],
+            'user_id': str(getattr(user, 'user_id', user.id)),
+            'email': user.email,
+            'username': user.username,
+        }
+        
+        # Build redirect URL with tokens
+        redirect_url = f"{base_url}?{urlencode(user_data)}"
+        
+        logger.info(f"Redirecting to: {base_url} with tokens")
+        logger.info(f"Token generated successfully for user: {user.email}")
+        
+        return redirect(redirect_url)
+        
+    except Exception as e:
+        logger.error(f"Error in oauth_redirect_handler: {str(e)}", exc_info=True)
+        return redirect(f"{settings.FRONTEND_URL}/login?error=server_error")
+
+
+# Optional: API endpoint to manually fetch user info after OAuth
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_info(request):
+    """Get current user information"""
+    user = request.user
+    tokens = get_tokens_for_user(user)
+    
+    return Response({
+        'access': tokens['access'],
+        'refresh': tokens['refresh'],
+        'user': {
+            'user_id': str(getattr(user, 'user_id', user.id)),
+            'email': user.email,
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'is_profile_complete': getattr(user, 'is_profile_complete', True),
+        }
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def google_login_redirect(request):
     """
     Redirects the user straight to Google OAuth login page.

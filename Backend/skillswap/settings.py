@@ -82,9 +82,31 @@ ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
 
 # where to redirect after social login
-LOGIN_REDIRECT_URL = "http://localhost:5173/dashboard"
-SIGNUP_REDIRECT_URL = "http://localhost:5173/onboarding"
-LOGOUT_REDIRECT_URL = 'http://localhost:5173'
+# LOGIN_REDIRECT_URL = "http://localhost:5173/dashboard"
+# SIGNUP_REDIRECT_URL = "http://localhost:5173/onboarding"
+# LOGOUT_REDIRECT_URL = 'http://localhost:5173'
+
+
+
+# Frontend URL (for redirects)
+FRONTEND_URL = "http://localhost:5173"
+
+# IMPORTANT: After OAuth success, redirect to our backend handler first
+# This handler will generate tokens and then redirect to frontend
+LOGIN_REDIRECT_URL = "/api/v1/auth/oauth/callback/"  # ✅ Backend URL, not frontend
+SIGNUP_REDIRECT_URL = "/accounts/oauth/callback/"  # ✅ Same handler for both
+LOGOUT_REDIRECT_URL = f"{FRONTEND_URL}/login"
+
+# The rest of your allauth config stays the same
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
+
+SOCIALACCOUNT_AUTO_SIGNUP = True
+ACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = True  
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
 
 # change to https in prod
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http' 

@@ -5,6 +5,7 @@ import Signup from '../authentication/Signup';
 import Login from '../authentication/Login';
 import ForgotPassword from '../authentication/ForgotPassword';
 import ResetPassword from '../authentication/ResetPassword';
+import OAuthCallback from '@/pages/OAuthCallback'; // ✅ Add this
 import TeamInfo from '@/pages/TeamInfo';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import DashboardHome from '@/pages/dashboard/Home';
@@ -24,7 +25,6 @@ import UpdatePassword from '@/pages/dashboard/UpdatePassword';
 import Privacy from '@/pages/dashboard/Privacy';
 import HelpCenter from '@/pages/dashboard/HelpCenter';
 import About from '@/pages/dashboard/About';
-
 import NotFound from '@/pages/dashboard/404';
 import EditProfile from '@/pages/EditProfile';
 import CreateListing from '@/pages/CreateListing';
@@ -35,8 +35,6 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-
-      {/* Team info */}
       <Route path="/info" element={<TeamInfo />} />
 
       {/* Authentication Pages */}
@@ -45,64 +43,40 @@ const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* ---------------------------------------------------------------- */}
-      {/* 🔑 Protected Routes Wrapper (The Solution to your TODO) */}
-      {/* ---------------------------------------------------------------- */}
-      {/* <Route element={<ProtectedRoute />}> */}
-      {/* Onboarding */}
-      {/* <Route path="/onboarding" element={<Onboarding />} /> */}
+      {/* ✅ OAuth Callback Routes - Must match Django redirect URLs */}
+      <Route path="/oauth/callback" element={<OAuthCallback />} />
+      <Route path="/dashboard" element={<OAuthCallback />} /> {/* Catches Django redirects */}
+      <Route path="/onboarding" element={<OAuthCallback />} /> {/* Catches new user redirects */}
 
-      {/* Parent Dashboard route */}
-      {/* <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route index element={<DashboardHome />} />
-        <Route path="trade" element={<Trade />} />
-        <Route path="listing" element={<Listing />} />
-        <Route path="filter-listing" element={<Filters />} />
-        <Route path="messages" element={<Messages />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="trade-details" element={<TradeDetails />} />
-        <Route path="propose-trade" element={<ProposeTrade />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="settings/update-password" element={<UpdatePassword />} />
-        <Route path="settings/privacy" element={<Privacy />} />
-        <Route path="settings/preferences" element={<Preferences />} />
-        <Route path="settings/payment" element={<PaymentMethods />} />
-        <Route path="settings/blocked" element={<BlockedUsers />} />
-        <Route path="settings/help" element={<HelpCenter />} />
-        <Route path="settings/about" element={<About />} />
-      </Route> */}
+      {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
-    <Route path="/onboarding" element={<Onboarding />} />
-    <Route path="/dashboard" element={<DashboardLayout />}>
-      <Route index element={<DashboardHome />} />
-      <Route path="trade" element={<Trade />} />
-      <Route path="listing" element={<Listing />} />
-      <Route path="filter-listing" element={<Filters />} />
-      <Route path="messages" element={<Messages />} />
-      <Route path="profile" element={<Profile />} />
-      <Route path="trade-details" element={<TradeDetails />} />
-      <Route path="propose-trade" element={<ProposeTrade />} />
-      <Route path="settings" element={<Settings />} />
-      <Route path="settings/update-password" element={<UpdatePassword />} />
-      <Route path="settings/privacy" element={<Privacy />} />
-      <Route path="settings/preferences" element={<Preferences />} />
-      <Route path="settings/payment" element={<PaymentMethods />} />
-      <Route path="settings/blocked" element={<BlockedUsers />} />
-      <Route path="settings/help" element={<HelpCenter />} />
-      <Route path="settings/about" element={<About />} />
-    </Route>
-  </Route>
+        {/* Actual Dashboard Routes (after auth) */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<DashboardHome />} />
+          <Route path="trade" element={<Trade />} />
+          <Route path="listing" element={<Listing />} />
+          <Route path="filter-listing" element={<Filters />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="trade-details" element={<TradeDetails />} />
+          <Route path="propose-trade" element={<ProposeTrade />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="settings/update-password" element={<UpdatePassword />} />
+          <Route path="settings/privacy" element={<Privacy />} />
+          <Route path="settings/preferences" element={<Preferences />} />
+          <Route path="settings/payment" element={<PaymentMethods />} />
+          <Route path="settings/blocked" element={<BlockedUsers />} />
+          <Route path="settings/help" element={<HelpCenter />} />
+          <Route path="settings/about" element={<About />} />
+        </Route>
 
-      {/* Do not share the dashboard layout but part of the dashboard */}
-      <Route path="/dashboard/notification" element={<Notifications />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/dashboard/notification" element={<Notifications />} />
+        <Route path="/create-listing" element={<CreateListing />} />
+        <Route path="/profile/edit" element={<EditProfile />} />
+        <Route path="/delete-account" element={<DeleteAccount />} />
+      </Route>
 
-      <Route path="/create-listing" element={<CreateListing />} />
-      <Route path="/profile/edit" element={<EditProfile />} />
-      <Route path="/delete-account" element={<DeleteAccount />} />
-      {/* </Route> */}
-      {/* ---------------------------------------------------------------- */}
-
-      {/* 404 Page */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
