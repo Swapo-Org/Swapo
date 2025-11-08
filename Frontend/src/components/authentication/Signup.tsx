@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Eye, EyeOff, ChevronLeft, LockKeyhole, Github, Loader2 } from 'lucide-react';
@@ -10,7 +9,7 @@ import { usePasswordToggle } from '@/hooks/usePasswordToggle';
 import { checkPasswordMatch } from '@/utils/CheckPasswordMatch';
 import { validateEmail } from '@/utils/ValidateEmail';
 import { useEnterKey } from '@/hooks/useEnterKey';
-import { useAuth } from '@/context/AuthContext'; // ✅ added
+import { useAuth } from '@/context/AuthContext';
 
 interface NewUser {
   id?: number;
@@ -23,7 +22,7 @@ const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 const Signup = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { login } = useAuth(); // ✅ from context
+  const { login } = useAuth();
 
   const { createItem, loading: signupLoading } = useCrud<NewUser>(
     `${API_BASE_URL}/auth/signup/`
@@ -60,19 +59,11 @@ const Signup = () => {
       const token = response.access || response.token;
       const user = response.user || response || {};
 
-      // if (token) {
-      //   login(token, user); // ✅ Log user in directly after signup
-      //   showToast('Signup successful! Welcome!', 'success');
-      //   navigate('/onboarding');
-      // } else {
-      //   showToast('Signup successful! Please log in.', 'success');
-      //   navigate('/login');
-      // }
       if (response.access) {
         login(response.access, { email: response.email });
         localStorage.setItem('refreshToken', response.refresh);
         showToast('Signup successful! Welcome!', 'success');
-        navigate('/app/onboarding'); // ✅ direct navigation to dashboard
+        navigate('/app/onboarding'); 
       } else {
         showToast('Signup successful, please log in.', 'success');
         navigate('/login');

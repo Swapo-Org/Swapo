@@ -32,7 +32,7 @@ const Login = () => {
   const passwordToggle = usePasswordToggle();
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
-  // ✅ OAuth login - redirects to Django which will handle OAuth and redirect back with tokens
+  // OAuth login - redirects to Django which will handle OAuth and redirect back with tokens
   const handleSocialLogin = (provider: 'google' | 'github') => {
     setSocialLoading(provider);
     
@@ -62,7 +62,7 @@ const Login = () => {
       if (token) {
         login(token, user);
         showToast('Welcome back!', 'success');
-        navigate('/app/dashboard'); // ✅ Navigate to actual dashboard route
+        navigate('/app/dashboard'); // Navigate to actual dashboard route
       } else {
         showToast('Invalid login response (no token)', 'error');
       }
