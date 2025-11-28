@@ -10,6 +10,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useTrades } from '@/hooks/useTrades';
 import { useAuth } from '@/context/AuthContext';
+import { useEffect, useState } from 'react';
+import axios from '@/utils/axiosInstance';
 
 const quickLinksData = [
   {
@@ -36,18 +38,42 @@ const quickLinksData = [
 
 const DashboardHome = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { data: trades, isLoading } = useTrades();
+
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get('/auth/me');
+
+        setProfile(res.data.user);
+      } catch (err) {
+        console.error('Failed to load user profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading || !profile) {
+    return <p className="p-10 text-center">Please login</p>;
+  }
+  //console.log('Profile', profile);
 
   // Get the 2 most recent trades for the current user
   const recentTrades =
     trades
       ?.filter(
-        (trade: any) => trade.user1 === user?.id || trade.user2 === user?.id,
+        (trade: any) =>
+          trade.user1 === profile?.user_id || trade.user2 === profile?.user_id,
       )
       .slice(0, 2) || [];
 
-  console.log('User', user);
   return (
     <div className="min-h-screen bg-stone-50 pb-10 dark:bg-gray-900">
       {/* Profile Header */}
@@ -65,8 +91,12 @@ const DashboardHome = () => {
           </div>
           <div className="flex flex-col items-start">
             <h1 className="text-sm">Welcome back,</h1>
-            <p className="text-2xl font-medium">
-              {isAuthenticated ? user?.username : 'User'}
+            <p className="text-2xl font-medium capitalize">
+              {isAuthenticated
+                ? profile?.first_name && profile?.last_name
+                  ? `${profile.first_name} ${profile.last_name}`
+                  : profile?.username
+                : 'User'}
             </p>
           </div>
         </div>
@@ -107,7 +137,7 @@ const DashboardHome = () => {
           <div>
             {recentTrades.map((trade: any, idx: number) => {
               // Determine the other user in the trade
-              const isUser1 = trade.user1 === user?.id;
+              const isUser1 = trade.user1 === profile?.user_id;
               const otherUserId = isUser1 ? trade.user2 : trade.user1;
 
               return (

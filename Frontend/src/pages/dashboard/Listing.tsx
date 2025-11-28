@@ -3,7 +3,7 @@ import { Search, SlidersHorizontal, X, Tag, Briefcase } from 'lucide-react';
 import clsx from 'clsx';
 import Button from '@/components/ui/Button';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
+import axios from '@/utils/axiosInstance';
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -20,6 +20,12 @@ interface Listing {
   creation_date: string;
   last_updated: string;
   location_preference: string;
+  user: {
+    first_name: string;
+    last_name: string;
+    username: string;
+    user_id: number;
+  };
 }
 
 const categories = ['All', 'Design', 'Development', 'Marketing'];
@@ -42,36 +48,49 @@ const getCategory = (skillName: string) => {
 
 const ListingPage = () => {
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
 
   const [activeCategory, setActiveCategory] = useState('All');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingListing, setLoadingListing] = useState(false);
 
-  // create a /api/v1/me/ endpoint in backend to get
-  // {
-  //   "id": 51,
-  //   "username": "gift",
-  //   "email": "gift@gmail.com"
-  // }
+  const [loadingUserProfile, setLoadingUserProfile] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
 
-  console.log('Current User', currentUser);
-  console.log('lisitngs', listings);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get('/auth/me');
+
+        setProfile(res.data.user);
+      } catch (err) {
+        console.error('Failed to load user profile:', err);
+      } finally {
+        setLoadingUserProfile(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // console.log('Current User', currentUser);
+  // console.log('lisitngs', listings);
+  //console.log('profile', profile);
 
   useEffect(() => {
     const fetchListings = async () => {
-      setLoading(true);
+      setLoadingListing(true);
       try {
         const res = await fetch(`${API_BASE_URL}/listings/`);
         if (!res.ok) throw new Error('Failed to fetch listings');
         const data: Listing[] = await res.json();
+        console.log('listing', data);
         setListings(data);
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false);
+        setLoadingListing(false);
       }
     };
 
@@ -81,9 +100,13 @@ const ListingPage = () => {
   // Map API data to component format
   const mappedListings = listings.map((l) => ({
     listing_id: l.listing_id,
-    user_id: l.user_id,
     id: l.listing_id,
-    name: `User ${l.user_id}`,
+    user_id: l.user_id,
+    user: l.user,
+    name:
+      l.user?.first_name && l.user?.last_name
+        ? `${l.user.first_name} ${l.user.last_name}`
+        : l.user?.username || `User ${l.user_id}`,
     role: l.title || 'No Title',
     offering: l.skill_offered_name,
     seeking: l.skill_desired_name,
@@ -157,12 +180,12 @@ const ListingPage = () => {
       </div>
 
       {/* Skill Cards */}
-      {loading ? (
+      {loadingListing ? (
         <p className="text-center text-gray-500">Loading listings...</p>
       ) : (
         <div className="grid gap-5">
           {filteredListings.map((listing) => {
-            const isOwner = currentUser?.id === listing.user_id;
+            const isOwner = profile?.user_id === listing.user_id;
 
             return (
               <div
@@ -176,11 +199,13 @@ const ListingPage = () => {
                     className="h-14 w-14 rounded-full object-cover"
                   />
                   <div className="text-left">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      {listing.name}
+                    <h2 className="text-lg font-semibold text-gray-900 capitalize dark:text-white">
+                      {listing.user?.first_name && listing.user?.last_name
+                        ? `${listing.user.first_name} ${listing.user.last_name}`
+                        : listing.user?.username || `User ${listing.user_id}`}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-300">
-                      {listing.role}
+                      {profile?.role || 'UX Designer'}
                     </p>
                   </div>
                 </div>

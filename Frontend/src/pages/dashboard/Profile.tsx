@@ -14,8 +14,8 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import axios from '@/utils/axiosInstance';
+import { useAuth } from '@/context/AuthContext';
 
 const nav = ['All', 'Offered Skills', 'Desired Skills', 'Portfolio'];
 
@@ -39,7 +39,7 @@ const portfolioData = [
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('All');
   const [reviewers, setReviewers] = useState([
     {
@@ -112,6 +112,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get('/auth/me');
+
         setProfile(res.data.user);
       } catch (err) {
         console.error('Failed to load user profile:', err);
@@ -126,8 +127,6 @@ const Profile = () => {
   if (loading || !profile) {
     return <p className="p-10 text-center">Loading profile...</p>;
   }
-
-  const joinedYear = new Date(profile.registration_date).getFullYear();
 
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col bg-stone-50/50 py-2 pb-10 dark:bg-gray-900">
@@ -154,21 +153,22 @@ const Profile = () => {
       <div className="rounded-b-lg bg-stone-50/50 px-4 pt-10 text-center dark:bg-gray-800">
         <div className="mx-auto h-36 w-36 overflow-hidden rounded-full bg-stone-200 dark:bg-gray-700">
           <img
-            src="https://img.icons8.com/office/40/person-male.png"
+            src="https://img.icons8.com/office/40/person-female.png"
             alt="Profile Photo"
             className="h-full w-full object-cover"
           />
         </div>
         <div className="my-5">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {profile.username}
+          <h1 className="text-2xl font-bold text-gray-900 capitalize dark:text-gray-100">
+            {profile?.first_name && profile?.last_name
+              ? `${profile.first_name} ${profile.last_name}`
+              : profile?.username}
           </h1>
           <div className="font-medium text-gray-600 dark:text-gray-300">
-            <p className="mt-[1px] mb-1 text-sm">
-              {' '}
-              {profile.bio || 'No bio yet'}{' '}
+            <p className="text-sm"> {profile.role || 'UX Designer'}</p>
+            <p className="mt-[1px] mb-1 text-xs">
+              {profile.bio || 'No bio yet'}
             </p>
-            {/* <p className="text-xs"> Joined {joinedYear} </p> */}
           </div>
         </div>
         <Button className="w-full" onClick={() => navigate('/profile/edit')}>
@@ -255,7 +255,7 @@ const Profile = () => {
               Portfolio
             </h2>
             <div className="grid grid-cols-2 gap-3">
-              {portfolioData.map((item, idx) => (
+              {portfolioData.map((_item, idx) => (
                 <div
                   key={idx}
                   className="flex h-50 w-full items-center justify-center rounded-lg border border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-800"

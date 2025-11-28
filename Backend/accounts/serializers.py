@@ -171,3 +171,17 @@ class UserPrivacySerializer(serializers.ModelSerializer):
     class Meta:
         model = UserPrivacy
         fields = ["public_profile", "public_skills", "public_trades", "contact_option"]
+
+
+class PublicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "user_id",
+            "username",
+            "first_name",
+            "last_name",
+            "role",
+            "location",
+            "bio",
+        ]

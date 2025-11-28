@@ -34,10 +34,19 @@ class UserBlockViewSet(viewsets.ModelViewSet):
   # check whether a user is blocked or not (for the frontend to disable interactions)
   @action(detail=False, methods=['get'], url_path='is-blocked/(?P<user_id>[^/.]+)')
   def is_blocked(self, request, user_id=None):
-    is_blocked = UserBlock.objects.filter(
-      blocker=request.user, blocked_id=user_id
-    ).exists()
-    return Response({'is_blocked': is_blocked})
+    try:
+      block = UserBlock.objects.get(blocker=request.user, blocked_id=user_id)
+      return Response({
+          'is_blocked': True,
+          'block_id': block.block_id  # use block_id, not id
+      })
+    except UserBlock.DoesNotExist:
+      return Response({
+          'is_blocked': False,
+          'block_id': None
+      })
+
+
   """
     GET /api/userblocks/blocks/is-blocked/5/
     Returns: { "is_blocked": true }

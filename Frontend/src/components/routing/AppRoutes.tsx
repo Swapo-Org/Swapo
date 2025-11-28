@@ -48,11 +48,8 @@ const AppRoutes = () => {
       <Route path="/dashboard" element={<OAuthCallback />} />
       <Route path="/onboarding" element={<OAuthCallback />} />
 
-<<<<<<< HEAD
-=======
       {/* <Route path="/oauth/callback" element={<OAuthCallback />} /> */}
 
->>>>>>> testing
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
         {/* Actual Dashboard Routes (after auth) */}

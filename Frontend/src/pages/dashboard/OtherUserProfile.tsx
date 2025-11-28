@@ -3,10 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
   PencilRuler,
-  Code,
   Mic,
-  Film,
-  Video,
   Star,
   StarHalf,
   ThumbsUp,
@@ -22,6 +19,8 @@ const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 interface ListingUser {
   id: number;
   username: string;
+  first_name: string;
+  last_name: string;
   role?: string;
   created_at: string;
   offered_skills?: string[] | string;
@@ -63,6 +62,8 @@ const OtherUserProfile = () => {
 
         setUser({
           id: data.user_id,
+          first_name: data.user?.first_name,
+          last_name: data.user?.last_name,
           username: data.user?.username || `User ${data.user_id}`,
           role: data.skill_offered_name,
           created_at: data.creation_date,
@@ -91,8 +92,10 @@ const OtherUserProfile = () => {
         const res = await axiosInstance.get(
           `/userblocks/is-blocked/${user.id}/`,
         );
+        console.log(res.data);
+
         setIsBlocked(res.data.is_blocked);
-        setBlockRecordId(res.data.block_id || null); // store the correct block record ID
+        setBlockRecordId(res.data.block_id || null);
       } catch (err) {
         console.error(err);
       }
@@ -104,20 +107,20 @@ const OtherUserProfile = () => {
   // Handle block/unblock
   const handleBlockUnblockUser = async () => {
     try {
-      if (isBlocked) {
-        // Get the existing block
-        const res = await axiosInstance.get(`/userblocks/?blocked=${user?.id}`);
-        const blockId = res.data[0]?.id;
-        if (blockId) {
-          await axiosInstance.delete(`/userblocks/${blockId}/`);
-          showToast(`${user?.username} has been unblocked.`, 'success');
-          setIsBlocked(false);
-        }
-      } else {
+      if (isBlocked && blockRecordId) {
+        // Unblock using stored blockRecordId
+        await axiosInstance.delete(`/userblocks/${blockRecordId}/`);
+        showToast(`${user?.username} has been unblocked.`, 'success');
+        setIsBlocked(false);
+        setBlockRecordId(null); // reset
+      } else if (!isBlocked && user?.id) {
         // Block
-        await axiosInstance.post('/userblocks/', { blocked: user?.id });
+        const res = await axiosInstance.post('/userblocks/', {
+          blocked: user.id,
+        });
         showToast(`${user?.username} has been blocked.`, 'success');
         setIsBlocked(true);
+        setBlockRecordId(res.data.block_id); // store newly created block record
       }
       setShowOptions(false);
     } catch (err) {
@@ -152,6 +155,8 @@ const OtherUserProfile = () => {
 
   const nav = ['All', 'Offered Skills', 'Desired Skills', 'Portfolio'];
 
+  //console.log('User', user);
+
   return (
     <div className="mx-auto min-h-screen max-w-xl p-4">
       {/* Header */}
@@ -164,7 +169,7 @@ const OtherUserProfile = () => {
           />
         </div>
         <div>
-          <h1 className="text-xl font-bold">{user.username}</h1>
+          <h1 className="text-xl font-bold capitalize">{user.username}</h1>
         </div>
 
         <div className="relative">
@@ -194,7 +199,11 @@ const OtherUserProfile = () => {
             className="h-full w-full object-cover"
           />
         </div>
-        <h2 className="mt-4 text-xl font-bold">{user.username}</h2>
+        <h2 className="mt-4 text-xl font-bold capitalize">
+          {user?.first_name && user?.last_name
+            ? `${user.first_name} ${user.last_name}`
+            : user?.username}
+        </h2>
         <p className="text-gray-600">{user.role || 'Role not set'}</p>
         <p className="text-xs">
           Joined {new Date(user.created_at).getFullYear()}
@@ -281,7 +290,7 @@ const OtherUserProfile = () => {
             <h2 className="mt-3 mb-2 text-left text-xl font-bold">Portfolio</h2>
             <div className="grid grid-cols-2 gap-3">
               {portfolio.length > 0 ? (
-                portfolio.map((item, idx) => (
+                portfolio.map((_item, idx) => (
                   <div
                     key={idx}
                     className="flex h-40 w-full items-center justify-center rounded-lg border bg-gray-100"

@@ -64,7 +64,6 @@ const ForgotPassword = () => {
       // Step 4: Feedback
       showToast('Password reset email sent! Check your inbox.', 'success');
       navigate('/login');
-
     } catch (err: any) {
       console.error(err);
       const errorMessage =
