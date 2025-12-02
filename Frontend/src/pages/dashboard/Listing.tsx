@@ -233,11 +233,16 @@ const ListingPage = () => {
                   {/* View Profile Button */}
                   <Button
                     className="flex-1 rounded-xl bg-gray-300 py-2 text-sm text-gray-900 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
-                    onClick={() =>
-                      navigate(`/app/dashboard/trade/${listing.listing_id}`)
-                    }
+                    onClick={() => {
+                      const isOwner = profile?.user_id === listing.user_id;
+                      isOwner
+                        ? navigate(`/app/dashboard/profile`)
+                        : navigate(
+                            `/app/dashboard/profile/${listing.listing_id}`,
+                          );
+                    }}
                   >
-                    View Trade Details
+                    View Profile
                   </Button>
 
                   {/* Propose Trade Button */}

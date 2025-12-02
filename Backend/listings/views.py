@@ -26,7 +26,7 @@ class SkillListingView(APIView):
           serializer = SkillListingSerializer(listing)
           return Response(serializer.data, status=status.HTTP_200_OK)
 
-      listings = SkillListing.objects.filter(status='active')
+      listings = SkillListing.objects.filter(status='active').order_by('-creation_date')
       serializer = SkillListingSerializer(listings, many=True)
       return Response(serializer.data, status=status.HTTP_200_OK)
 

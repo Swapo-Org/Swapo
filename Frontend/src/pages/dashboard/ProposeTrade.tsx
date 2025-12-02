@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/useToast';
 
 interface Skill {
   id: number;
+  skill_id: number;
   name: string;
   proficiency_level: string;
   icon: any;
@@ -44,7 +45,6 @@ const ProposeTrade = () => {
 
   useEffect(() => {
     if (!profile?.user_id) {
-      console.error('no user skills');
       return;
     }
 
@@ -54,6 +54,7 @@ const ProposeTrade = () => {
         console.log('User skills API response:', res.data);
         const skills = (res.data.offerings || []).map((s: any) => ({
           id: s.user_skill_id,
+          skill_id: s.skill,
           name: s.skill_name,
           experience: s.experience || 0,
           icon: s.skill_name.toLowerCase().includes('design')
@@ -64,7 +65,7 @@ const ProposeTrade = () => {
         }));
         setUserSkills(skills);
       } catch (err) {
-        showToast('Failed to fetch user skills:', 'error');
+        showToast('Failed to fetch user skills', 'error');
         console.error('Failed to fetch user skills:', err);
       } finally {
         setLoadingSkills(false);
@@ -78,11 +79,15 @@ const ProposeTrade = () => {
     if (!selectedSkill) return alert('Please select a skill to offer');
     if (!listing) return alert('Listing not found');
 
+    // Find the selected skill to get its skill_id for the API
+    const selectedSkillData = userSkills.find((s) => s.id === selectedSkill);
+    if (!selectedSkillData) return alert('Selected skill not found');
+
     const payload = {
       listing: listing.listing_id,
       proposer: profile?.user_id,
       recipient: listing.user_id,
-      skill_offered_by_proposer: selectedSkill,
+      skill_offered_by_proposer: selectedSkillData.skill_id,
       skill_desired_by_proposer: listing.skill_desired,
       message,
     };
