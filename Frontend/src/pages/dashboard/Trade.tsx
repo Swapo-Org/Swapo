@@ -10,8 +10,11 @@ const Trade = () => {
   const [activeTab, setActiveTab] = useState('All');
   const { data: trades = [], isLoading, error } = useTrades();
 
-  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
-  if (error) return <p className="text-center mt-10 text-red-500">Failed to load trades</p>;
+  if (isLoading) return <p className="mt-10 text-center">Loading...</p>;
+  if (error)
+    return (
+      <p className="mt-10 text-center text-red-500">Failed to load trades</p>
+    );
 
   const filteredTrades =
     activeTab === 'All'
@@ -40,7 +43,9 @@ const Trade = () => {
           className="absolute left-0 cursor-pointer text-gray-900 dark:text-gray-100"
           onClick={() => navigate(-1)}
         />
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Trades</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          Trades
+        </h1>
       </div>
 
       {/* Navigation Tabs */}
@@ -77,7 +82,10 @@ const Trade = () => {
             >
               <div className="flex items-center space-x-3">
                 <img
-                  src={trade.image || 'https://img.icons8.com/office/40/briefcase.png'}
+                  src={
+                    trade.image ||
+                    'https://img.icons8.com/office/40/briefcase.png'
+                  }
                   alt={trade.name}
                   className="h-10 w-10 rounded-full"
                 />
@@ -87,7 +95,7 @@ const Trade = () => {
                   </p>
                   <span
                     className={`mt-1 inline-flex items-center gap-2 rounded-full px-2 py-0.5 text-xs font-semibold ${getStatusColor(
-                      trade.status
+                      trade.status,
                     )}`}
                   >
                     <div
@@ -95,10 +103,10 @@ const Trade = () => {
                         trade.status === 'Pending'
                           ? 'bg-yellow-500'
                           : trade.status === 'Active'
-                          ? 'bg-blue-500'
-                          : trade.status === 'Completed'
-                          ? 'bg-green-500'
-                          : 'bg-gray-400'
+                            ? 'bg-blue-500'
+                            : trade.status === 'Completed'
+                              ? 'bg-green-500'
+                              : 'bg-gray-400'
                       }`}
                     ></div>
                     {trade.status}
@@ -107,7 +115,7 @@ const Trade = () => {
               </div>
               <ChevronRight
                 size={20}
-                className="text-gray-400 dark:text-gray-200 cursor-pointer"
+                className="cursor-pointer text-gray-400 dark:text-gray-200"
               />
             </div>
           ))

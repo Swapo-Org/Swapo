@@ -22,6 +22,7 @@ interface ListingUser {
   first_name: string;
   last_name: string;
   role?: string;
+  profile_picture_url?: string;
   created_at: string;
   offered_skills?: string[] | string;
   desired_skills?: string[] | string;
@@ -59,6 +60,7 @@ const OtherUserProfile = () => {
         const res = await fetch(`${API_BASE_URL}/listings/${listingId}`);
         if (!res.ok) throw new Error('Failed to fetch listing');
         const data = await res.json();
+        // console.log('user', data);
 
         setUser({
           id: data.user_id,
@@ -66,6 +68,7 @@ const OtherUserProfile = () => {
           last_name: data.user?.last_name,
           username: data.user?.username || `User ${data.user_id}`,
           role: data.skill_offered_name,
+          profile_picture_url: data.user?.profile_picture_url,
           created_at: data.creation_date,
           offered_skills: data.skill_offered_name,
           desired_skills: data.skill_desired_name,
@@ -120,7 +123,7 @@ const OtherUserProfile = () => {
         });
         showToast(`${user?.username} has been blocked.`, 'success');
         setIsBlocked(true);
-        setBlockRecordId(res.data.block_id); // store newly created block record
+        setBlockRecordId(res.data.block_id);
       }
       setShowOptions(false);
     } catch (err) {
@@ -194,7 +197,10 @@ const OtherUserProfile = () => {
       <div className="text-center">
         <div className="mx-auto h-36 w-36 overflow-hidden rounded-full bg-gray-200">
           <img
-            src="https://img.icons8.com/office/40/person-male.png"
+            src={
+              user.profile_picture_url ||
+              'https://img.icons8.com/office/40/person-male.png'
+            }
             alt={user.username}
             className="h-full w-full object-cover"
           />

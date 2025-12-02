@@ -31,6 +31,7 @@ import CreateListing from '@/pages/CreateListing';
 import DeleteAccount from '@/pages/DeleteAccount';
 import ProtectedRoute from './ProtectedRoute';
 import OtherUserProfile from '@/pages/dashboard/OtherUserProfile';
+import ProposalDetails from '@/pages/dashboard/ProposalDetails';
 
 const AppRoutes = () => {
   return (
@@ -62,7 +63,8 @@ const AppRoutes = () => {
           <Route path="messages" element={<Messages />} />
           <Route path="profile" element={<Profile />} />
           <Route path="profile/:listingId" element={<OtherUserProfile />} />
-          <Route path="trade-details" element={<TradeDetails />} />
+          <Route path="trade/:tradeId" element={<TradeDetails />} />
+          <Route path="proposal/:proposalId" element={<ProposalDetails />} />
           <Route path="propose-trade" element={<ProposeTrade />} />
           <Route path="settings" element={<Settings />} />
           <Route path="settings/update-password" element={<UpdatePassword />} />

@@ -7,19 +7,13 @@ import axios from '@/utils/axiosInstance';
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
-interface Listing {
+export interface Listing {
   listing_id: number;
   user_id: number;
-  skill_offered: number;
   skill_offered_name: string;
   skill_desired: number;
   skill_desired_name: string;
   title: string;
-  description: string;
-  status: string;
-  creation_date: string;
-  last_updated: string;
-  location_preference: string;
   user: {
     first_name: string;
     last_name: string;
@@ -31,7 +25,6 @@ interface Listing {
 
 const categories = ['All', 'Design', 'Development', 'Marketing'];
 
-// Function to map skill name to a category
 const getCategory = (skillName: string) => {
   if (!skillName) return 'Other';
   skillName = skillName.toLowerCase();
@@ -49,7 +42,6 @@ const getCategory = (skillName: string) => {
 
 const ListingPage = () => {
   const navigate = useNavigate();
-
   const [activeCategory, setActiveCategory] = useState('All');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -63,7 +55,6 @@ const ListingPage = () => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get('/auth/me');
-
         setProfile(res.data.user);
       } catch (err) {
         console.error('Failed to load user profile:', err);
@@ -71,13 +62,8 @@ const ListingPage = () => {
         setLoadingUserProfile(false);
       }
     };
-
     fetchProfile();
   }, []);
-
-  // console.log('Current User', currentUser);
-  // console.log('lisitngs', listings);
-  //console.log('profile', profile);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -86,7 +72,6 @@ const ListingPage = () => {
         const res = await fetch(`${API_BASE_URL}/listings/`);
         if (!res.ok) throw new Error('Failed to fetch listings');
         const data: Listing[] = await res.json();
-        console.log('listing', data);
         setListings(data);
       } catch (err) {
         console.error(err);
@@ -94,39 +79,33 @@ const ListingPage = () => {
         setLoadingListing(false);
       }
     };
-
     fetchListings();
   }, []);
 
   // Map API data to component format
   const mappedListings = listings.map((l) => ({
-    listing_id: l.listing_id,
+    ...l,
     id: l.listing_id,
-    user_id: l.user_id,
-    user: l.user,
     name:
       l.user?.first_name && l.user?.last_name
         ? `${l.user.first_name} ${l.user.last_name}`
         : l.user?.username || `User ${l.user_id}`,
-    role: l.title || 'No Title',
-    offering: l.skill_offered_name,
-    seeking: l.skill_desired_name,
     image:
       l?.user?.profile_picture_url ||
       'https://img.icons8.com/office/40/person-female.png',
   }));
 
-  // Filtered results
   const filteredListings = mappedListings.filter((l) => {
-    const listingCategory = getCategory(l.offering);
+    const listingCategory = getCategory(l.skill_offered_name);
     const matchesCategory =
       activeCategory === 'All' || listingCategory === activeCategory;
     const matchesSearch =
       l.name.toLowerCase().includes(search.toLowerCase()) ||
-      l.offering.toLowerCase().includes(search.toLowerCase()) ||
-      l.seeking.toLowerCase().includes(search.toLowerCase());
+      l.skill_offered_name.toLowerCase().includes(search.toLowerCase()) ||
+      l.skill_desired_name.toLowerCase().includes(search.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+  console.log('listings', listings);
 
   return (
     <div className="min-h-screen bg-white px-4 pt-5 pb-20 md:px-8 dark:bg-black">
@@ -135,8 +114,6 @@ const ListingPage = () => {
         <h1 className="text-xl font-bold text-gray-900 md:text-2xl dark:text-white">
           Browse Skills
         </h1>
-
-        {/* Filter Icon */}
         <button
           onClick={() => setIsFilterOpen(true)}
           className="cursor-pointer rounded-full bg-gray-100 p-2.5 transition hover:bg-gray-200 dark:bg-black/10"
@@ -189,26 +166,41 @@ const ListingPage = () => {
         <div className="grid gap-5">
           {filteredListings.map((listing) => {
             const isOwner = profile?.user_id === listing.user_id;
-
             return (
               <div
                 key={listing.id}
                 className="rounded-2xl border border-gray-100 p-5 shadow-sm transition hover:shadow-md"
               >
-                <div className="items-left flex gap-4">
+                <div className="flex gap-4">
                   <img
                     src={listing.image}
                     alt={listing.name}
-                    className="h-14 w-14 rounded-full object-cover"
+                    className="h-14 w-14 cursor-pointer rounded-full object-cover"
+                    onClick={() => {
+                      const isOwner = profile?.user_id === listing.user_id;
+                      isOwner
+                        ? navigate(`/app/dashboard/profile`)
+                        : navigate(
+                            `/app/dashboard/profile/${listing.listing_id}`,
+                          );
+                    }}
                   />
                   <div className="text-left">
-                    <h2 className="text-lg font-semibold text-gray-900 capitalize dark:text-white">
-                      {listing.user?.first_name && listing.user?.last_name
-                        ? `${listing.user.first_name} ${listing.user.last_name}`
-                        : listing.user?.username || `User ${listing.user_id}`}
+                    <h2
+                      className="cursor-pointer text-lg font-semibold text-gray-900 capitalize dark:text-white"
+                      onClick={() => {
+                        const isOwner = profile?.user_id === listing.user_id;
+                        isOwner
+                          ? navigate(`/app/dashboard/profile`)
+                          : navigate(
+                              `/app/dashboard/profile/${listing.listing_id}`,
+                            );
+                      }}
+                    >
+                      {listing.name}
                     </h2>
                     <p className="text-sm text-gray-500 dark:text-gray-300">
-                      {profile?.role || 'UX Designer'}
+                      {listing.title || 'No Title'}
                     </p>
                   </div>
                 </div>
@@ -220,7 +212,7 @@ const ListingPage = () => {
                       <span className="font-medium text-gray-900 dark:text-white">
                         Offering:
                       </span>{' '}
-                      {listing.offering}
+                      {listing.skill_offered_name}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -232,24 +224,35 @@ const ListingPage = () => {
                       <span className="font-medium text-gray-900 dark:text-white">
                         Seeking:
                       </span>{' '}
-                      {listing.seeking}
+                      {listing.skill_desired_name}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-5">
+                <div className="mt-5 flex gap-3">
+                  {/* View Profile Button */}
                   <Button
-                    className="w-full rounded-xl bg-red-600 py-2 text-sm text-white hover:bg-red-700"
-                    onClick={() => {
-                      isOwner
-                        ? navigate(`/app/dashboard/profile`)
-                        : navigate(
-                            `/app/dashboard/profile/${listing.listing_id}`,
-                          );
-                    }}
+                    className="flex-1 rounded-xl bg-gray-300 py-2 text-sm text-gray-900 hover:bg-gray-400 dark:bg-gray-700 dark:text-white"
+                    onClick={() =>
+                      navigate(`/app/dashboard/trade/${listing.listing_id}`)
+                    }
                   >
-                    {isOwner ? 'Your Profile' : 'View Profile'}
+                    View Trade Details
                   </Button>
+
+                  {/* Propose Trade Button */}
+                  {profile?.user_id !== listing.user_id && (
+                    <Button
+                      className="flex-1 rounded-xl bg-red-600 py-2 text-sm text-white hover:bg-red-700"
+                      onClick={() =>
+                        navigate('/app/dashboard/propose-trade', {
+                          state: { listing },
+                        })
+                      }
+                    >
+                      Propose Trade
+                    </Button>
+                  )}
                 </div>
               </div>
             );
@@ -266,9 +269,7 @@ const ListingPage = () => {
       {/* Filter Drawer */}
       {isFilterOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/20 md:items-center">
-          {/* Drawer Content */}
           <div className="w-full rounded-t-2xl border border-white/30 bg-white/70 p-6 shadow-lg backdrop-blur-md md:max-w-md md:rounded-2xl">
-            {/* Drawer Header */}
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
               <button
@@ -278,8 +279,6 @@ const ListingPage = () => {
                 <X size={20} />
               </button>
             </div>
-
-            {/* Example filter checkboxes */}
             <div className="mb-5 space-y-3">
               <label className="flex items-center gap-2 text-gray-700">
                 <input type="checkbox" className="accent-red-600" /> Remote Only
@@ -293,7 +292,6 @@ const ListingPage = () => {
                 Portfolio
               </label>
             </div>
-
             <Button
               fullWidth
               onClick={() => setIsFilterOpen(false)}
