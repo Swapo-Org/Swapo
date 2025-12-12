@@ -55,9 +55,12 @@ const TradeDetails = () => {
 
   useEffect(() => {
     // Fetch current user
-    axios.get('/auth/me/').then((res) => {
-      setCurrentUserId(Number(res.data.user.user_id));
-    }).catch(err => console.error('Failed to fetch user:', err));
+    axios
+      .get('/auth/me/')
+      .then((res) => {
+        setCurrentUserId(Number(res.data.user.user_id));
+      })
+      .catch((err) => console.error('Failed to fetch user:', err));
 
     const fetchTrade = async () => {
       if (!tradeId) return;
@@ -80,13 +83,17 @@ const TradeDetails = () => {
   if (!trade) return <p className="p-10 text-center">Trade not found.</p>;
 
   // Determine which user is "the other person"
-  const otherUser = currentUserId === trade.user1 ? trade.user2_details : trade.user1_details;
-  const currentUserSkill = currentUserId === trade.user1 ? trade.skill1_details : trade.skill2_details;
-  const otherUserSkill = currentUserId === trade.user1 ? trade.skill2_details : trade.skill1_details;
+  const otherUser =
+    currentUserId === trade.user1 ? trade.user2_details : trade.user1_details;
+  const currentUserSkill =
+    currentUserId === trade.user1 ? trade.skill1_details : trade.skill2_details;
+  const otherUserSkill =
+    currentUserId === trade.user1 ? trade.skill2_details : trade.skill1_details;
 
-  const otherUserName = otherUser?.first_name && otherUser?.last_name
-    ? `${otherUser.first_name} ${otherUser.last_name}`
-    : otherUser?.username || 'Unknown User';
+  const otherUserName =
+    otherUser?.first_name && otherUser?.last_name
+      ? `${otherUser.first_name} ${otherUser.last_name}`
+      : otherUser?.username || 'Unknown User';
 
   const message = trade.proposal_details?.message || trade.terms_agreed;
 
@@ -100,7 +107,9 @@ const TradeDetails = () => {
           onClick={() => navigate(-1)}
         />
         <div className="text-center">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Trade Details</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            Trade Details
+          </h1>
         </div>
       </div>
 
@@ -108,13 +117,20 @@ const TradeDetails = () => {
         {/* Trade Status */}
         <div className="rounded-lg bg-white p-4 shadow-md dark:bg-gray-800">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-gray-600 dark:text-gray-300">Trade Status</span>
-            <span className={`rounded-full px-3 py-1 text-sm font-semibold ${
-              trade.status === 'active' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400' :
-              trade.status === 'in_progress' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' :
-              trade.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' :
-              'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
-            }`}>
+            <span className="font-semibold text-gray-600 dark:text-gray-300">
+              Trade Status
+            </span>
+            <span
+              className={`rounded-full px-3 py-1 text-sm font-semibold ${
+                trade.status === 'active'
+                  ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
+                  : trade.status === 'in_progress'
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                    : trade.status === 'completed'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+              }`}
+            >
               {trade.status.toUpperCase()}
             </span>
           </div>
@@ -126,11 +142,11 @@ const TradeDetails = () => {
             <h2 className="mb-2 text-sm font-semibold text-gray-500 dark:text-gray-400">
               You're Offering
             </h2>
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
+            <p className="text-lg font-bold text-gray-900 capitalize dark:text-gray-100">
               {currentUserSkill?.skill_name || 'Unknown Skill'}
             </p>
             {currentUserSkill?.description && (
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+              <p className="mt-1 text-sm text-gray-600 capitalize dark:text-gray-300">
                 {currentUserSkill.description}
               </p>
             )}
@@ -160,7 +176,9 @@ const TradeDetails = () => {
             <h2 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-100">
               Trade Agreement
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              {message}
+            </p>
           </div>
         )}
 
@@ -195,7 +213,9 @@ const TradeDetails = () => {
         {trade.start_date && (
           <div className="rounded-lg bg-white p-4 shadow-md dark:bg-gray-800">
             <div className="flex justify-between text-sm">
-              <span className="font-semibold text-gray-600 dark:text-gray-300">Started</span>
+              <span className="font-semibold text-gray-600 dark:text-gray-300">
+                Started
+              </span>
               <span className="text-gray-900 dark:text-gray-100">
                 {new Date(trade.start_date).toLocaleDateString()}
               </span>

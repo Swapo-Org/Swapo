@@ -21,8 +21,10 @@ const Trade = () => {
       ? trades
       : trades.filter((trade: any) => {
           const status = trade.status.toLowerCase();
-          if (activeTab === 'Pending') return status === 'pending' || status === 'active';
-          if (activeTab === 'Active') return status === 'active' || status === 'in_progress';
+          if (activeTab === 'Pending')
+            return status === 'pending' || status === 'active';
+          if (activeTab === 'Active')
+            return status === 'active' || status === 'in_progress';
           if (activeTab === 'Completed') return status === 'completed';
           return false;
         });
@@ -43,7 +45,8 @@ const Trade = () => {
 
   const getStatusDotColor = (status: string) => {
     const lowerStatus = status.toLowerCase();
-    if (lowerStatus === 'pending' || lowerStatus === 'active') return 'bg-yellow-500';
+    if (lowerStatus === 'pending' || lowerStatus === 'active')
+      return 'bg-yellow-500';
     if (lowerStatus === 'in_progress') return 'bg-blue-500';
     if (lowerStatus === 'completed') return 'bg-green-500';
     return 'bg-gray-400';
@@ -92,16 +95,22 @@ const Trade = () => {
         ) : (
           filteredTrades.map((trade: any, idx: number) => {
             const otherUser = trade.user1_details || trade.user2_details;
-            const tradeeName = otherUser?.username || otherUser?.first_name && otherUser?.last_name 
-              ? `${otherUser.first_name} ${otherUser.last_name}`
-              : 'Unknown User';
-            const profilePic = otherUser?.profile_picture_url || 'https://img.icons8.com/office/40/person-male.png';
-            
+            const tradeeName =
+              otherUser?.username ||
+              (otherUser?.first_name && otherUser?.last_name)
+                ? `${otherUser.first_name} ${otherUser.last_name}`
+                : 'Unknown User';
+            const profilePic =
+              otherUser?.profile_picture_url ||
+              'https://img.icons8.com/office/40/person-male.png';
+
             return (
               <div
                 key={trade.trade_id || trade.id || idx}
-                className="cursor-pointer flex items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
-                onClick={() => navigate(`/app/dashboard/trade/${trade.trade_id}`)}
+                className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
+                onClick={() =>
+                  navigate(`/app/dashboard/trade/${trade.trade_id}`)
+                }
               >
                 <div className="flex items-center space-x-3">
                   <img
@@ -114,14 +123,17 @@ const Trade = () => {
                       Trade with {tradeeName}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {trade.skill1_details?.skill_name || 'Skill'} ↔ {trade.skill2_details?.skill_name || 'Skill'}
+                      {trade.skill1_details?.skill_name || 'Skill'} ↔{' '}
+                      {trade.skill2_details?.skill_name || 'Skill'}
                     </p>
                     <span
                       className={`mt-1 inline-flex items-center gap-2 rounded-full px-2 py-0.5 text-xs font-semibold ${getStatusColor(
                         trade.status,
                       )}`}
                     >
-                      <div className={`h-1.5 w-1.5 rounded-full ${getStatusDotColor(trade.status)}`}></div>
+                      <div
+                        className={`h-1.5 w-1.5 rounded-full ${getStatusDotColor(trade.status)}`}
+                      ></div>
                       {trade.status}
                     </span>
                   </div>

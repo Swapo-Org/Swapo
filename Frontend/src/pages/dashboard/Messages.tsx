@@ -66,7 +66,7 @@ const Messages = () => {
           return (
             <div
               key={otherUser.user_id}
-              className={`cursor-pointer border-b border-gray-100 p-4 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 ${
+              className={`cursor-pointer border-b border-gray-100 p-4 capitalize hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 ${
                 selectedChatId === otherUser.user_id
                   ? 'bg-gray-100 dark:bg-gray-800'
                   : ''
@@ -175,7 +175,7 @@ const Messages = () => {
                             'https://img.icons8.com/office/40/person-male.png'
                           }
                           alt={receiverDetails?.username || 'User'}
-                          className="h-8 w-8 rounded-full object-cover"
+                          className="h-8 w-8 rounded-full object-cover capitalize"
                         />
                       )}
                       <div

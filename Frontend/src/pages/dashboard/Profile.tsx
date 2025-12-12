@@ -22,12 +22,6 @@ interface UserSkill {
   details?: string;
 }
 
-const portfolioData = [
-  { url: '', image: '' },
-  { url: '', image: '' },
-  { url: '', image: '' },
-];
-
 const Profile = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -106,6 +100,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get('/auth/me');
+        //console.log('Fetched user profile:', res.data.user);
         setProfile(res.data.user);
       } catch (err) {
         console.error('Failed to load user profile:', err);
@@ -139,7 +134,7 @@ const Profile = () => {
     return <p className="p-10 text-center">Loading profile...</p>;
   }
 
-  console.log('PROFILE:', profile);
+  // console.log(profile?.listings?.flatMap((l) => l.portfolio_images));
 
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col bg-stone-50/50 py-2 pb-10 dark:bg-gray-900">
@@ -305,14 +300,25 @@ const Profile = () => {
               Portfolio
             </h2>
             <div className="grid grid-cols-2 gap-3">
-              {portfolioData.map((_item, idx) => (
-                <div
-                  key={idx}
-                  className="flex h-50 w-full items-center justify-center rounded-lg border border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-800"
-                >
-                  Portfolio {idx + 1}
-                </div>
-              ))}
+              {profile?.listings
+                ?.flatMap((listing: any) => listing.portfolio_images ?? [])
+                .filter(
+                  (img: any) =>
+                    typeof img.image_url === 'string' &&
+                    img.image_url.startsWith('https:'),
+                )
+                .map((img: any, idx: number) => (
+                  <div
+                    key={img.id || idx}
+                    className="relative aspect-square w-full overflow-hidden rounded-lg border border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-800"
+                  >
+                    <img
+                      src={img.image_url}
+                      alt={`Portfolio ${img.id || idx}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ))}
             </div>
           </div>
         )}

@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate
 from .models import User, UserPrivacy
 from django.contrib.auth import password_validation
 import logging
+from listings.serializers import SkillListingSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -183,14 +184,25 @@ class UserPrivacySerializer(serializers.ModelSerializer):
 
 
 class PublicUserSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = User
         fields = [
             "user_id",
+            "email",
             "username",
             "first_name",
             "last_name",
             "role",
             "location",
             "bio",
+            "profile_picture_url",
+            "is_profile_complete",
         ]
+
+
+class PublicUserWithListingsSerializer(PublicUserSerializer):
+    listings = SkillListingSerializer(many=True, read_only=True)
+
+    class Meta(PublicUserSerializer.Meta):
+        fields = PublicUserSerializer.Meta.fields + ["listings"]

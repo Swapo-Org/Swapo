@@ -10,7 +10,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.core.mail import send_mail
 from rest_framework.views import APIView
 from .models import User, UserPrivacy
-from .serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer, UpdateProfileSerializer, UserPrivacySerializer
+from .serializers import RegisterSerializer, LoginSerializer, ChangePasswordSerializer, UpdateProfileSerializer, UserPrivacySerializer, PublicUserWithListingsSerializer
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
@@ -94,21 +94,9 @@ def get_user_info(request):
     """Get current user information"""
     user = request.user
     tokens = get_tokens_for_user(user)
-    
-    return Response({
-        'user': {
-            'user_id': str(getattr(user, 'user_id', user.id)),
-            'email': user.email,
-            'username': user.username,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'role': user.role,
-            'location': user.location,
-            'bio': user.bio,
-            'profile_picture_url': user.profile_picture_url,
-            'is_profile_complete': getattr(user, 'is_profile_complete', True),
-        }
-    })
+    serializer = PublicUserWithListingsSerializer(user)
+
+    return Response({"user": serializer.data})
 
 
 def google_login_redirect(request):

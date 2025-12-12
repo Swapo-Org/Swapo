@@ -3,6 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
+from cloudinary.uploader import upload as cloudinary_upload
+
+
 from .models import SkillListing
 from skills.models import Skill
 from listings.models import PortfolioImage
@@ -53,11 +56,12 @@ class SkillListingView(APIView):
 
           # Limit to 6 images
           if len(images) > 6:
-              return Response({"error": "Maximum 6 portfolio images allowed."},
+            return Response({"error": "Maximum 6 portfolio images allowed."},
                               status=status.HTTP_400_BAD_REQUEST)
 
           for img in images:
-              PortfolioImage.objects.create(listing=listing, image_url=img)
+            upload_result = cloudinary_upload(img)
+            PortfolioImage.objects.create(listing=listing, image_url=upload_result.get("secure_url"))
 
           return Response(SkillListingSerializer(listing).data, status=status.HTTP_201_CREATED)
 
@@ -79,9 +83,11 @@ class SkillListingView(APIView):
           serializer.save()
           if images:
               if listing.portfolio_images.count() + len(images) > 5:
-                  return Response({"error": "Only 5 images allowed"}, status=400)
+                return Response({"error": "Only 5 images allowed"}, status=400)
               for img in images:
-                  PortfolioImage.objects.create(listing=listing, image_url=img)
+                upload_result = cloudinary_upload(img)
+                PortfolioImage.objects.create(listing=listing, image_url=upload_result.get("secure_url"))
+
           return Response(SkillListingSerializer(listing).data)
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

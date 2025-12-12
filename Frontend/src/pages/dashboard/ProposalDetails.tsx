@@ -33,9 +33,12 @@ export default function ProposalDetails() {
 
   useEffect(() => {
     // Fetch current user
-    axios.get('/auth/me/').then((res) => {
-      setCurrentUserId(Number(res.data.user.user_id));
-    }).catch(err => console.error('Failed to fetch user:', err));
+    axios
+      .get('/auth/me/')
+      .then((res) => {
+        setCurrentUserId(Number(res.data.user.user_id));
+      })
+      .catch((err) => console.error('Failed to fetch user:', err));
 
     // Fetch proposal
     axios
@@ -50,12 +53,14 @@ export default function ProposalDetails() {
 
   const handleAccept = async () => {
     if (!proposal) return;
-    
+
     setProcessing(true);
     try {
-      const response = await axios.post(`/trades/proposals/${proposal.proposal_id}/accept/`);
+      const response = await axios.post(
+        `/trades/proposals/${proposal.proposal_id}/accept/`,
+      );
       showToast('Proposal accepted! Trade created successfully.', 'success');
-      
+
       // Navigate to the trade details page
       if (response.data.trade?.trade_id) {
         navigate(`/app/dashboard/trade/${response.data.trade.trade_id}`);
@@ -64,7 +69,10 @@ export default function ProposalDetails() {
         setProposal(response.data.proposal);
       }
     } catch (err: any) {
-      showToast(err?.response?.data?.detail || 'Failed to accept proposal', 'error');
+      showToast(
+        err?.response?.data?.detail || 'Failed to accept proposal',
+        'error',
+      );
       console.error('Error accepting proposal:', err);
     } finally {
       setProcessing(false);
@@ -73,14 +81,19 @@ export default function ProposalDetails() {
 
   const handleReject = async () => {
     if (!proposal) return;
-    
+
     setProcessing(true);
     try {
-      const response = await axios.post(`/trades/proposals/${proposal.proposal_id}/reject/`);
+      const response = await axios.post(
+        `/trades/proposals/${proposal.proposal_id}/reject/`,
+      );
       showToast('Proposal rejected', 'success');
       setProposal(response.data.proposal);
     } catch (err: any) {
-      showToast(err?.response?.data?.detail || 'Failed to reject proposal', 'error');
+      showToast(
+        err?.response?.data?.detail || 'Failed to reject proposal',
+        'error',
+      );
       console.error('Error rejecting proposal:', err);
     } finally {
       setProcessing(false);
@@ -159,7 +172,7 @@ export default function ProposalDetails() {
           <span className="font-semibold text-gray-600 dark:text-gray-300">
             Proposer
           </span>
-          <span className="font-medium text-gray-900 dark:text-gray-100">
+          <span className="font-medium text-gray-900 capitalize dark:text-gray-100">
             {proposal.proposer_details?.username || `User ${proposal.proposer}`}
           </span>
         </div>
@@ -168,8 +181,9 @@ export default function ProposalDetails() {
           <span className="font-semibold text-gray-600 dark:text-gray-300">
             Recipient
           </span>
-          <span className="font-medium text-gray-900 dark:text-gray-100">
-            {proposal.recipient_details?.username || `User ${proposal.recipient}`}
+          <span className="font-medium text-gray-900 capitalize dark:text-gray-100">
+            {proposal.recipient_details?.username ||
+              `User ${proposal.recipient}`}
           </span>
         </div>
 
@@ -178,7 +192,8 @@ export default function ProposalDetails() {
             Skill Offered
           </span>
           <span className="font-medium text-gray-900 dark:text-gray-100">
-            {proposal.skill_offered_details?.skill_name || proposal.skill_offered_by_proposer}
+            {proposal.skill_offered_details?.skill_name ||
+              proposal.skill_offered_by_proposer}
           </span>
         </div>
 
@@ -187,7 +202,8 @@ export default function ProposalDetails() {
             Skill Desired
           </span>
           <span className="font-medium text-gray-900 dark:text-gray-100">
-            {proposal.skill_desired_details?.skill_name || proposal.skill_desired_by_proposer}
+            {proposal.skill_desired_details?.skill_name ||
+              proposal.skill_desired_by_proposer}
           </span>
         </div>
 

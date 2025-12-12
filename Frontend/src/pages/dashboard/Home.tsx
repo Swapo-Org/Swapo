@@ -63,7 +63,7 @@ const DashboardHome = () => {
   if (loading || !profile) {
     return <p className="p-10 text-center">Please login</p>;
   }
-  //console.log('Profile', profile);
+  console.log('trades', trades);
 
   // Get the 2 most recent trades for the current user
   const recentTrades =
