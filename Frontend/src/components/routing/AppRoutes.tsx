@@ -62,7 +62,7 @@ const AppRoutes = () => {
           <Route path="filter-listing" element={<Filters />} />
           <Route path="messages" element={<Messages />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="profile/:listingId" element={<OtherUserProfile />} />
+          <Route path="profile/:userId" element={<OtherUserProfile />} />
           <Route path="trade/:tradeId" element={<TradeDetails />} />
           <Route path="proposal/:proposalId" element={<ProposalDetails />} />
           <Route path="propose-trade" element={<ProposeTrade />} />

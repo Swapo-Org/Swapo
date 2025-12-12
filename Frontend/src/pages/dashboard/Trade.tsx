@@ -73,11 +73,11 @@ const Trade = () => {
         ) : (
           filteredTrades.map((trade: any, idx: number) => {
             const otherUser = trade.user1_details || trade.user2_details;
-            const tradeeName =
-              otherUser?.username ||
-              (otherUser?.first_name && otherUser?.last_name)
+            console.log('other', otherUser);
+            const tradeName =
+              otherUser?.first_name && otherUser?.last_name
                 ? `${otherUser.first_name} ${otherUser.last_name}`
-                : 'Unknown User';
+                : `${otherUser?.username}`;
             const profilePic =
               otherUser?.profile_picture_url ||
               'https://img.icons8.com/office/40/person-male.png';
@@ -93,12 +93,12 @@ const Trade = () => {
                 <div className="flex items-center space-x-3">
                   <img
                     src={profilePic}
-                    alt={tradeeName}
+                    alt={tradeName}
                     className="h-10 w-10 rounded-full object-cover"
                   />
                   <div className="text-left">
                     <p className="text-base font-semibold text-gray-900 dark:text-gray-200">
-                      Trade with {tradeeName}
+                      Trade with <span className="capitalize">{tradeName}</span>
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {trade.skill1_details?.skill_name || 'Skill'} ↔{' '}

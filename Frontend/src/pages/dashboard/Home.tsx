@@ -75,6 +75,9 @@ const DashboardHome = () => {
       )
       .slice(0, 2) || [];
 
+  const capitalize = (str?: string) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+
   return (
     <div className="min-h-screen bg-stone-50 pb-10 dark:bg-gray-900">
       {/* Profile Header */}
@@ -141,9 +144,13 @@ const DashboardHome = () => {
           <div>
             {recentTrades.map((trade: any, idx: number) => {
               // Determine the other user in the trade
-              const isUser1 = trade.user1 === profile?.user_id;
+              // console.log('trade', trade);
               const otherUser = trade.user1_details || trade.user2_details;
-              const otherUserId = isUser1 ? trade.user2 : trade.user1;
+              const otherUserId = otherUser?.user_id;
+              // console.log('other user', otherUserId);
+              //http://localhost:5173/app/dashboard/profile/8
+              //http://localhost:5173/app/dashboard/profile/57
+
               const profilePic =
                 otherUser?.profile_picture_url ||
                 'https://img.icons8.com/office/40/person-male.png';
@@ -167,10 +174,11 @@ const DashboardHome = () => {
                       />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                        {trade.proposal_details?.proposer_details?.first_name
-                          ? `Trade with ${trade.proposal_details?.proposer_details?.first_name} ${trade.proposal_details?.proposer_details?.last_name}`
-                          : `Trade with ${trade.proposal_details?.proposer_details?.username}`}
+                      <h3 className="= font-semibold text-gray-900 dark:text-gray-100">
+                        Trade with{' '}
+                        {otherUser?.first_name
+                          ? `${otherUser?.first_name} ${otherUser?.last_name}`
+                          : `${capitalize(otherUser?.username)}`}
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {trade.skill1_details?.skill_name || 'Skill'} ↔{' '}

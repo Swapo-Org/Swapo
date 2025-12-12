@@ -330,3 +330,15 @@ class DeleteAccountView(generics.GenericAPIView):
             {"detail": "Account deleted successfully."},
             status=status.HTTP_204_NO_CONTENT,
         )
+    
+class OtherUserProfileView(generics.RetrieveAPIView):
+    """
+    Fetch public info and listings for a given user.
+    """
+    queryset = User.objects.all()
+    serializer_class = PublicUserWithListingsSerializer
+    permission_classes = [IsAuthenticated]
+
+    # This tells DRF to use `user_id` field for lookup
+    lookup_field = 'user_id'       
+    lookup_url_kwarg = 'user_id'

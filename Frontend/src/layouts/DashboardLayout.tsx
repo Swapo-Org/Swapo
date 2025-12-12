@@ -12,7 +12,7 @@ const DashboardLayout = () => {
     <div className="mx-auto flex min-h-screen max-w-lg flex-col bg-stone-50/50 text-center text-black sm:border-transparent sm:shadow-lg dark:bg-black dark:text-white">
       {/* Page Content */}
       <main className="flex-1">
-        <Outlet /> {/* This renders the nested routes */}
+        <Outlet />
       </main>
 
       {/* Footer Nav links */}

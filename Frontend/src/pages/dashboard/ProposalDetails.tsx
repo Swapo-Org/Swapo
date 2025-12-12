@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import axios from '@/utils/axiosInstance';
 import { useToast } from '@/hooks/useToast';
 import Button from '@/components/ui/Button';
+import { getStatusColor, getStatusDotColor } from '@/utils/statusColour';
 
-type Proposal = {
+export type Proposal = {
   proposal_id: number;
   message: string;
   proposal_date: string;
@@ -22,7 +23,7 @@ type Proposal = {
   skill_desired_details?: any;
 };
 
-export default function ProposalDetails() {
+const ProposalDetails = () => {
   const { proposalId } = useParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -147,16 +148,18 @@ export default function ProposalDetails() {
           <span className="font-semibold text-gray-600 dark:text-gray-300">
             Status
           </span>
+
           <span
-            className={`font-bold ${
-              proposal.status === 'pending'
-                ? 'text-yellow-700'
-                : proposal.status === 'accepted'
-                  ? 'text-green-700'
-                  : 'text-red-700'
-            }`}
+            className={`flex items-center gap-2 rounded-full px-3 py-0.5 text-sm font-bold tracking-wide ${getStatusColor(
+              proposal.status,
+            )}`}
           >
-            {proposal.status.toUpperCase()}
+            <div
+              className={`h-2 w-2 rounded-full ${getStatusDotColor(
+                proposal.status,
+              )}`}
+            ></div>
+            {proposal.status}
           </span>
         </div>
 
@@ -271,4 +274,5 @@ export default function ProposalDetails() {
       )}
     </div>
   );
-}
+};
+export default ProposalDetails;

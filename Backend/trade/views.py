@@ -1,6 +1,8 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.utils import timezone
+
 from .models import Trade, TradeProposal
 from .serializers import TradeSerializer, TradeProposalSerializer
 
@@ -33,7 +35,7 @@ class TradeProposalViewSet(viewsets.ModelViewSet):
             user2=proposal.recipient,
             skill1=proposal.skill_offered_by_proposer,
             skill2=proposal.skill_desired_by_proposer,
-            terms_agreed=proposal.message or "Trade agreement",
+            terms_agreed=proposal.message or "No agreement terms available",
             status='active'
         )
         
@@ -69,3 +71,26 @@ class TradeViewSet(viewsets.ModelViewSet):
     queryset = Trade.objects.all().order_by("-start_date")
     serializer_class = TradeSerializer
     # permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=True, methods=['post'])
+    def completed(self, request, pk=None):
+        """Mark a proposal as completed"""
+        trade = self.get_object()
+        
+        # Check if proposal is already accepted or has a trade
+        if trade.status == 'completed':
+            return Response(
+                {"detail": "Trade is already completed"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Update status to completed
+        trade.status = 'completed'
+        trade.actual_completion_date = timezone.now()
+        trade.save()
+        
+        return Response({
+            "detail": "Trade marked as completed",
+            "trade": TradeSerializer(trade).data
+        }, status=status.HTTP_200_OK)
+    

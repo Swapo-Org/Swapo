@@ -105,7 +105,7 @@ const ListingPage = () => {
       l.skill_desired_name.toLowerCase().includes(search.toLowerCase());
     return matchesCategory && matchesSearch;
   });
-  console.log('listings', listings);
+  // /console.log('listings', listings);
 
   return (
     <div className="min-h-screen bg-white px-4 pt-5 pb-20 md:px-8 dark:bg-black">
@@ -237,9 +237,7 @@ const ListingPage = () => {
                       const isOwner = profile?.user_id === listing.user_id;
                       isOwner
                         ? navigate(`/app/dashboard/profile`)
-                        : navigate(
-                            `/app/dashboard/profile/${listing.listing_id}`,
-                          );
+                        : navigate(`/app/dashboard/profile/${listing.user_id}`);
                     }}
                   >
                     View Profile

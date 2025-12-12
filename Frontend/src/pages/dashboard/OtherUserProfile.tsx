@@ -13,6 +13,7 @@ import {
 import Button from '@/components/ui/Button';
 import axiosInstance from '@/utils/axiosInstance';
 import { useToast } from '@/hooks/useToast';
+import axios from '@/utils/axiosInstance';
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -40,7 +41,7 @@ interface ListingUser {
 }
 
 const OtherUserProfile = () => {
-  const { listingId } = useParams();
+  const { userId } = useParams();
   const navigate = useNavigate();
   const [user, setUser] = useState<ListingUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,39 +53,46 @@ const OtherUserProfile = () => {
   const { showToast } = useToast();
   // Fetch user data
   useEffect(() => {
-    if (!listingId) return;
+    if (!userId) return;
 
     const fetchListing = async () => {
+      if (!userId) return;
+
       try {
         setLoading(true);
-        const res = await fetch(`${API_BASE_URL}/listings/${listingId}`);
-        if (!res.ok) throw new Error('Failed to fetch listing');
-        const data = await res.json();
-        // console.log('user', data);
+
+        // Axios automatically throws for non-2xx status, no need for .ok
+        const res = await axiosInstance.get(`/auth/users/${userId}/`);
+        const data = res.data;
 
         setUser({
           id: data.user_id,
-          first_name: data.user?.first_name,
-          last_name: data.user?.last_name,
-          username: data.user?.username || `User ${data.user_id}`,
-          role: data.skill_offered_name,
-          profile_picture_url: data.user?.profile_picture_url,
-          created_at: data.creation_date,
-          offered_skills: data.skill_offered_name,
-          desired_skills: data.skill_desired_name,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          username: data.username || `User ${data.user_id}`,
+          role: data.role || 'Role not set',
+          profile_picture_url:
+            data.profile_picture_url ||
+            'https://img.icons8.com/office/40/person-male.png',
+          created_at: data.created_at,
+          offered_skills:
+            data.listings?.map((l: any) => l.skill_offered_name) || [],
+          desired_skills:
+            data.listings?.map((l: any) => l.skill_desired_name) || [],
           portfolio: data.portfolio || [],
           rating: data.rating || 0,
           reviews: data.reviews || [],
         });
-      } catch (err) {
-        console.error(err);
+      } catch (err: any) {
+        console.error('Failed to fetch listing:', err);
+        showToast('Failed to fetch user listing', 'error');
       } finally {
         setLoading(false);
       }
     };
 
     fetchListing();
-  }, [listingId]);
+  }, [userId]);
 
   // Check if current user has blocked this user
   useEffect(() => {
