@@ -1,73 +1,136 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import {
   Bell,
-  Home,
-  Briefcase,
-  MessageSquare,
-  User,
   ChevronLeft,
 } from 'lucide-react';
 import clsx from 'clsx';
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  time: string;
-  avatar?: string;
-  iconColor?: string;
-  unread?: boolean;
-  section: 'Today' | 'Yesterday';
-}
+import { useNavigate } from 'react-router-dom';
+import { useNotifications } from '@/hooks/useNotifications';
 
 const Notifications = () => {
-  const [activeTab, setActiveTab] = useState('Messages');
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      title: 'New Skill Trade Proposal',
-      message: "Alex wants to trade 'Web Design' for 'Copywriting'.",
-      time: '10:30 AM',
-      avatar: 'https://img.icons8.com/office/40/person-male.png',
-      unread: true,
-      section: 'Today',
-    },
-    {
-      id: 2,
-      title: 'Message from Sarah',
-      message: '"Hey! Are you available this weekend?"',
-      time: '11:45 AM',
-      avatar: 'https://img.icons8.com/office/40/person-male.png',
-      unread: false,
-      section: 'Today',
-    },
-    {
-      id: 3,
-      title: 'Skill Trade Accepted',
-      message: 'Your proposal with Mike was accepted.',
-      time: '2:15 PM',
-      avatar: 'https://img.icons8.com/office/40/person-male.png',
-      unread: false,
-      section: 'Yesterday',
-    },
-    {
-      id: 4,
-      title: 'System Announcement',
-      message: 'Scheduled maintenance this Friday at 11 PM.',
-      time: '3:30 PM',
-      iconColor: 'text-red-500 bg-red-50',
-      unread: false,
-      section: 'Yesterday',
-    },
-  ]);
+  const navigate = useNavigate();
+  const { notifications, isLoading, markAllAsRead, markAsRead } = useNotifications();
 
-  const markAllRead = () =>
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  // Filter notifications to show only required types
+  const filteredNotifications = useMemo(() => {
+    return notifications.filter((n) =>
+      ['new_message', 'trade_proposal', 'trade_accepted', 'system_alert'].includes(n.type)
+    );
+  }, [notifications]);
 
-  const grouped = {
-    Today: notifications.filter((n) => n.section === 'Today'),
-    Yesterday: notifications.filter((n) => n.section === 'Yesterday'),
+  // Group notifications by time
+  const grouped = useMemo(() => {
+    const today: typeof filteredNotifications = [];
+    const yesterday: typeof filteredNotifications = [];
+    const older: typeof filteredNotifications = [];
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+
+    filteredNotifications.forEach((notification) => {
+      const notifDate = new Date(notification.timestamp);
+      if (notifDate >= todayStart) {
+        today.push(notification);
+      } else if (notifDate >= yesterdayStart) {
+        yesterday.push(notification);
+      } else {
+        older.push(notification);
+      }
+    });
+
+    return { today, yesterday, older };
+  }, [filteredNotifications]);
+
+  const handleMarkAllRead = () => {
+    markAllAsRead.mutate();
   };
+
+  const handleNotificationClick = (notification: typeof notifications[0]) => {
+    // Mark as read
+    if (!notification.is_read) {
+      markAsRead.mutate(notification.notification_id);
+    }
+
+    // Navigate based on notification type
+    switch (notification.type) {
+      case 'new_message':
+        if (notification.sender_details) {
+          navigate('/app/dashboard/messages', {
+            state: {
+              userId: notification.sender_details.user_id,
+              username: notification.sender_details.first_name && notification.sender_details.last_name
+                ? `${notification.sender_details.first_name} ${notification.sender_details.last_name}`
+                : notification.sender_details.username,
+            },
+          });
+        } else {
+          navigate('/app/dashboard/messages');
+        }
+        break;
+      case 'trade_proposal':
+        if (notification.proposal_details) {
+          navigate(`/app/dashboard/proposal/${notification.proposal_details.proposal_id}`);
+        } else {
+          navigate('/app/dashboard/trade');
+        }
+        break;
+      case 'trade_accepted':
+        if (notification.trade_details) {
+          navigate(`/app/dashboard/trade/${notification.trade_details.trade_id}`);
+        } else {
+          navigate('/app/dashboard/trade');
+        }
+        break;
+      case 'system_alert':
+        // No navigation for system alerts
+        break;
+      default:
+        break;
+    }
+  };
+
+  const getNotificationTitle = (notification: typeof notifications[0]) => {
+    switch (notification.type) {
+      case 'new_message':
+        return notification.sender_details
+          ? `Message from ${notification.sender_details.first_name || notification.sender_details.username}`
+          : 'New Message';
+      case 'trade_proposal':
+        return 'New Trade Proposal';
+      case 'trade_accepted':
+        return 'Trade Accepted';
+      case 'system_alert':
+        return 'System Announcement';
+      default:
+        return 'Notification';
+    }
+  };
+
+  const getNotificationIcon = (notification: typeof notifications[0]) => {
+    if (notification.type === 'system_alert') {
+      return 'text-red-500 bg-red-50 dark:bg-red-900/20';
+    }
+    return 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-200';
+  };
+
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-gray-600 dark:text-gray-400">Loading notifications...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex min-h-screen max-w-lg flex-col bg-[#FAFAFA] dark:bg-black">
@@ -87,7 +150,7 @@ const Notifications = () => {
         </div>
 
         <button
-          onClick={markAllRead}
+          onClick={handleMarkAllRead}
           className="cursor-pointer text-sm font-medium text-red-600 hover:underline dark:text-red-500"
         >
           Mark all as read
@@ -97,158 +160,163 @@ const Notifications = () => {
       {/* Notifications */}
       <main className="flex-1 overflow-y-auto px-4 pb-24 md:px-8 md:pb-28">
         <div className="mx-auto max-w-2xl space-y-6">
-          {/* Today */}
-          {grouped.Today.length > 0 && (
-            <section>
-              <h2 className="mb-2 text-sm font-semibold text-gray-500 dark:text-gray-300">
-                Today
-              </h2>
-              <div className="grid gap-3 md:gap-4">
-                {grouped.Today.map((n) => (
-                  <div
-                    key={n.id}
-                    className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm md:p-5 dark:bg-gray-700"
-                  >
-                    {/* Avatar or Icon */}
-                    {n.avatar ? (
-                      <img
-                        src={n.avatar}
-                        alt={n.title}
-                        className="h-10 w-10 rounded-full object-cover md:h-12 md:w-12"
-                      />
-                    ) : (
+          {filteredNotifications.length === 0 ? (
+            <div className="py-8 text-center text-gray-500 dark:text-gray-400">
+              No notifications yet
+            </div>
+          ) : (
+            <>
+              {/* Today */}
+              {grouped.today.length > 0 && (
+                <section>
+                  <h2 className="mb-2 text-sm font-semibold text-gray-500 dark:text-gray-300">
+                    Today
+                  </h2>
+                  <div className="grid gap-3 md:gap-4">
+                    {grouped.today.map((n) => (
                       <div
-                        className={clsx(
-                          'flex h-10 w-10 items-center justify-center rounded-full md:h-12 md:w-12',
-                          n.iconColor ||
-                            'text-gray-700dark:text-white bg-gray-100',
-                        )}
+                        key={n.notification_id}
+                        onClick={() => handleNotificationClick(n)}
+                        className="flex cursor-pointer items-start gap-3 rounded-xl bg-white p-4 shadow-sm transition hover:bg-gray-50 md:p-5 dark:bg-gray-700 dark:hover:bg-gray-600"
                       >
-                        <Bell size={18} />
-                      </div>
-                    )}
-
-                    {/* Text */}
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-gray-900 md:text-base dark:text-white">
-                          {n.title}
-                        </h3>
-                        {n.unread && (
-                          <span className="h-2 w-2 rounded-full bg-red-500" />
+                        {/* Avatar or Icon */}
+                        {n.sender_details?.profile_picture_url ? (
+                          <img
+                            src={n.sender_details.profile_picture_url}
+                            alt={getNotificationTitle(n)}
+                            className="h-10 w-10 rounded-full object-cover md:h-12 md:w-12"
+                          />
+                        ) : (
+                          <div
+                            className={clsx(
+                              'flex h-10 w-10 items-center justify-center rounded-full md:h-12 md:w-12',
+                              getNotificationIcon(n),
+                            )}
+                          >
+                            <Bell size={18} />
+                          </div>
                         )}
-                      </div>
-                      <p className="mt-0.5 text-sm leading-snug text-gray-600 dark:text-gray-300">
-                        {n.message}
-                      </p>
-                      <p className="mt-2 text-xs text-gray-400 md:text-sm">
-                        {n.time}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
 
-          {/* Yesterday */}
-          {grouped.Yesterday.length > 0 && (
-            <section>
-              <h2 className="mb-2 text-sm font-semibold text-gray-500 dark:text-gray-300">
-                Yesterday
-              </h2>
-              <div className="grid gap-3 md:gap-4">
-                {grouped.Yesterday.map((n) => (
-                  <div
-                    key={n.id}
-                    className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm md:p-5 dark:bg-gray-700"
-                  >
-                    {n.avatar ? (
-                      <img
-                        src={n.avatar}
-                        alt={n.title}
-                        className="h-10 w-10 rounded-full object-cover md:h-12 md:w-12"
-                      />
-                    ) : (
+                        {/* Text */}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                              {getNotificationTitle(n)}
+                            </h3>
+                            {!n.is_read && (
+                              <span className="h-2 w-2 rounded-full bg-red-500" />
+                            )}
+                          </div>
+                          <p className="mt-0.5 text-sm leading-snug text-gray-600 dark:text-gray-300">
+                            {n.message_text}
+                          </p>
+                          <p className="mt-2 text-xs text-gray-400 md:text-sm">
+                            {formatTime(n.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Yesterday */}
+              {grouped.yesterday.length > 0 && (
+                <section>
+                  <h2 className="mb-2 text-sm font-semibold text-gray-500 dark:text-gray-300">
+                    Yesterday
+                  </h2>
+                  <div className="grid gap-3 md:gap-4">
+                    {grouped.yesterday.map((n) => (
                       <div
-                        className={clsx(
-                          'flex h-10 w-10 items-center justify-center rounded-full md:h-12 md:w-12',
-                          n.iconColor || 'bg-gray-100 text-gray-700',
-                        )}
+                        key={n.notification_id}
+                        onClick={() => handleNotificationClick(n)}
+                        className="flex cursor-pointer items-start gap-3 rounded-xl bg-white p-4 shadow-sm transition hover:bg-gray-50 md:p-5 dark:bg-gray-700 dark:hover:bg-gray-600"
                       >
-                        <Bell size={18} />
-                      </div>
-                    )}
+                        {n.sender_details?.profile_picture_url ? (
+                          <img
+                            src={n.sender_details.profile_picture_url}
+                            alt={getNotificationTitle(n)}
+                            className="h-10 w-10 rounded-full object-cover md:h-12 md:w-12"
+                          />
+                        ) : (
+                          <div
+                            className={clsx(
+                              'flex h-10 w-10 items-center justify-center rounded-full md:h-12 md:w-12',
+                              getNotificationIcon(n),
+                            )}
+                          >
+                            <Bell size={18} />
+                          </div>
+                        )}
 
-                    <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-gray-900 md:text-base dark:text-white">
-                        {n.title}
-                      </h3>
-                      <p className="mt-0.5 text-sm leading-snug text-gray-600 dark:text-gray-300">
-                        {n.message}
-                      </p>
-                      <p className="mt-2 text-xs text-gray-400 md:text-sm dark:text-gray-400">
-                        {n.time}
-                      </p>
-                    </div>
+                        <div className="flex-1">
+                          <h3 className="text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                            {getNotificationTitle(n)}
+                          </h3>
+                          <p className="mt-0.5 text-sm leading-snug text-gray-600 dark:text-gray-300">
+                            {n.message_text}
+                          </p>
+                          <p className="mt-2 text-xs text-gray-400 md:text-sm dark:text-gray-400">
+                            {formatTime(n.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </section>
+                </section>
+              )}
+
+              {/* Older */}
+              {grouped.older.length > 0 && (
+                <section>
+                  <h2 className="mb-2 text-sm font-semibold text-gray-500 dark:text-gray-300">
+                    Older
+                  </h2>
+                  <div className="grid gap-3 md:gap-4">
+                    {grouped.older.map((n) => (
+                      <div
+                        key={n.notification_id}
+                        onClick={() => handleNotificationClick(n)}
+                        className="flex cursor-pointer items-start gap-3 rounded-xl bg-white p-4 shadow-sm transition hover:bg-gray-50 md:p-5 dark:bg-gray-700 dark:hover:bg-gray-600"
+                      >
+                        {n.sender_details?.profile_picture_url ? (
+                          <img
+                            src={n.sender_details.profile_picture_url}
+                            alt={getNotificationTitle(n)}
+                            className="h-10 w-10 rounded-full object-cover md:h-12 md:w-12"
+                          />
+                        ) : (
+                          <div
+                            className={clsx(
+                              'flex h-10 w-10 items-center justify-center rounded-full md:h-12 md:w-12',
+                              getNotificationIcon(n),
+                            )}
+                          >
+                            <Bell size={18} />
+                          </div>
+                        )}
+
+                        <div className="flex-1">
+                          <h3 className="text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                            {getNotificationTitle(n)}
+                          </h3>
+                          <p className="mt-0.5 text-sm leading-snug text-gray-600 dark:text-gray-300">
+                            {n.message_text}
+                          </p>
+                          <p className="mt-2 text-xs text-gray-400 md:text-sm dark:text-gray-400">
+                            {formatTime(n.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
           )}
         </div>
       </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed right-0 bottom-0 left-0 hidden items-center justify-around border-t border-gray-200 bg-white py-2 shadow-sm md:py-3">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-around">
-          <button
-            onClick={() => setActiveTab('Browse')}
-            className={clsx(
-              'flex flex-col items-center text-xs font-medium',
-              activeTab === 'Browse' ? 'text-red-600' : 'text-gray-500',
-            )}
-          >
-            <Home size={20} />
-            <span>Browse</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('My Skills')}
-            className={clsx(
-              'flex flex-col items-center text-xs font-medium',
-              activeTab === 'My Skills' ? 'text-red-600' : 'text-gray-500',
-            )}
-          >
-            <Briefcase size={20} />
-            <span>My Skills</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('Messages')}
-            className={clsx(
-              'flex flex-col items-center text-xs font-medium',
-              activeTab === 'Messages'
-                ? 'rounded-xl bg-red-50 px-3 py-1 text-red-600'
-                : 'text-gray-500',
-            )}
-          >
-            <MessageSquare size={20} />
-            <span>Messages</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('Profile')}
-            className={clsx(
-              'flex flex-col items-center text-xs font-medium',
-              activeTab === 'Profile' ? 'text-red-600' : 'text-gray-500',
-            )}
-          >
-            <User size={20} />
-            <span>Profile</span>
-          </button>
-        </div>
-      </nav>
     </div>
   );
 };

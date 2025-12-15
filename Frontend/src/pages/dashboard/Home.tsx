@@ -13,6 +13,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
 import axios from '@/utils/axiosInstance';
 import { getStatusColor, getStatusDotColor } from '@/utils/statusColour';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useMessageList } from '@/hooks/useMessageList';
 
 const quickLinksData = [
@@ -43,6 +44,7 @@ const DashboardHome = () => {
   const { isAuthenticated } = useAuth();
   const { data: trades, isLoading } = useTrades();
   const { data: chatList = [] } = useMessageList();
+  const { unreadCount } = useNotifications();
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
@@ -117,10 +119,15 @@ const DashboardHome = () => {
           </div>
         </div>
         <div
-          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-transparent bg-white/20"
+          className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-transparent bg-white/20"
           onClick={() => navigate('/app/dashboard/notification')}
         >
           <Bell size={18} />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </div>
       </div>
 
