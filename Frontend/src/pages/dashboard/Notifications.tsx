@@ -14,7 +14,7 @@ const Notifications = () => {
   // Filter notifications to show only required types
   const filteredNotifications = useMemo(() => {
     return notifications.filter((n) =>
-      ['new_message', 'trade_proposal', 'trade_accepted', 'system_alert'].includes(n.type)
+      ['new_message', 'trade_proposal', 'trade_accepted', 'trade_active', 'system_alert'].includes(n.type)
     );
   }, [notifications]);
 
@@ -77,6 +77,7 @@ const Notifications = () => {
         }
         break;
       case 'trade_accepted':
+      case 'trade_active':
         if (notification.trade_details) {
           navigate(`/app/dashboard/trade/${notification.trade_details.trade_id}`);
         } else {
@@ -101,6 +102,8 @@ const Notifications = () => {
         return 'New Trade Proposal';
       case 'trade_accepted':
         return 'Trade Accepted';
+      case 'trade_active':
+        return 'Active Trade';
       case 'system_alert':
         return 'System Announcement';
       default:
