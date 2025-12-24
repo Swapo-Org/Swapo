@@ -88,6 +88,7 @@ const Signup = () => {
       }
     } catch (error) {
       showToast('Signup failed. Please try again.', 'error');
+      // The useCrud hook automatically sets loading to false in the finally block
     }
   };
 
@@ -97,8 +98,12 @@ const Signup = () => {
     <div className="mx-auto min-h-screen max-w-lg bg-white px-4 py-8">
       <ChevronLeft
         size={28}
-        className="cursor-pointer text-gray-700 hover:text-red-600"
-        onClick={() => navigate(-1)}
+        className={`text-gray-700 ${
+          signupLoading
+            ? 'cursor-not-allowed opacity-50'
+            : 'cursor-pointer hover:text-red-600'
+        }`}
+        onClick={() => !signupLoading && navigate(-1)}
       />
 
       <div className="mt-14 flex flex-col text-center">
@@ -109,7 +114,7 @@ const Signup = () => {
           <Button
             onClick={() => handleSocialSignup('google')}
             variant="outline"
-            disabled={socialLoading !== null}
+            disabled={socialLoading !== null || signupLoading}
             className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
           >
             {socialLoading === 'google' ? (
@@ -123,7 +128,7 @@ const Signup = () => {
           <Button
             onClick={() => handleSocialSignup('github')}
             variant="outline"
-            disabled={socialLoading !== null}
+            disabled={socialLoading !== null || signupLoading}
             className="border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
           >
             {socialLoading === 'github' ? (
@@ -148,6 +153,7 @@ const Signup = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={signupLoading}
           />
           <Input
             icon={<LockKeyhole size={18} />}
@@ -155,6 +161,7 @@ const Signup = () => {
             type={passwordToggle.inputType}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={signupLoading}
             rightIcon={
               passwordToggle.visible ? (
                 <EyeOff
@@ -177,6 +184,7 @@ const Signup = () => {
             type={confirmToggle.inputType}
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
+            disabled={signupLoading}
             rightIcon={
               confirmToggle.visible ? (
                 <EyeOff
@@ -207,8 +215,12 @@ const Signup = () => {
           <p className="mt-2 text-sm text-gray-600">
             Already have an account?{' '}
             <span
-              onClick={() => navigate('/login')}
-              className="cursor-pointer text-red-600 hover:underline"
+              onClick={() => !signupLoading && navigate('/login')}
+              className={`text-red-600 ${
+                signupLoading
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer hover:underline'
+              }`}
             >
               Log in
             </span>

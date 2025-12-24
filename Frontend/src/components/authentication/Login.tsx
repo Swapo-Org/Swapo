@@ -98,6 +98,7 @@ const Login = () => {
       }
     } catch (err) {
       showToast('Login failed. Please check your credentials.', 'error');
+      // The useCrud hook automatically sets loading to false in the finally block
     }
   };
 
@@ -113,7 +114,7 @@ const Login = () => {
           <Button
             onClick={() => handleSocialLogin('google')}
             variant="outline"
-            disabled={socialLoading !== null}
+            disabled={socialLoading !== null || loginLoading}
             className="border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             {socialLoading === 'google' ? (
@@ -127,7 +128,7 @@ const Login = () => {
           <Button
             onClick={() => handleSocialLogin('github')}
             variant="outline"
-            disabled={socialLoading !== null}
+            disabled={socialLoading !== null || loginLoading}
             className="border-gray-300 text-gray-700 hover:bg-gray-50"
           >
             {socialLoading === 'github' ? (
@@ -152,6 +153,7 @@ const Login = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loginLoading}
           />
           <Input
             icon={<LockKeyhole size={18} />}
@@ -159,6 +161,7 @@ const Login = () => {
             type={passwordToggle.inputType}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loginLoading}
             rightIcon={
               passwordToggle.visible ? (
                 <EyeOff
@@ -178,8 +181,12 @@ const Login = () => {
         </div>
 
         <div
-          onClick={() => navigate('/forgot-password')}
-          className="mb-8 cursor-pointer py-2 text-right text-sm font-semibold text-red-600 hover:underline"
+          onClick={() => !loginLoading && navigate('/forgot-password')}
+          className={`mb-8 py-2 text-right text-sm font-semibold text-red-600 ${
+            loginLoading
+              ? 'cursor-not-allowed opacity-50'
+              : 'cursor-pointer hover:underline'
+          }`}
         >
           Forgot Password?
         </div>
@@ -194,8 +201,12 @@ const Login = () => {
           <p className="mt-2 text-sm text-gray-600">
             Don't have an account?{' '}
             <span
-              onClick={() => navigate('/signup')}
-              className="cursor-pointer text-red-600 hover:underline"
+              onClick={() => !loginLoading && navigate('/signup')}
+              className={`text-red-600 ${
+                loginLoading
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'cursor-pointer hover:underline'
+              }`}
             >
               Sign up
             </span>
