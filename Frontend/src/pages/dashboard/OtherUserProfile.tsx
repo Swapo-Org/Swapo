@@ -13,6 +13,7 @@ import {
 import Button from '@/components/ui/Button';
 import axiosInstance from '@/utils/axiosInstance';
 import { useToast } from '@/hooks/useToast';
+import OtherUserProfileSkeleton from '@/components/skeleton/OtherUserProfileSkeleton';
 //import axios from '@/utils/axiosInstance';
 
 //const API_BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -23,6 +24,7 @@ interface ListingUser {
   first_name: string;
   last_name: string;
   role?: string;
+  bio?: string;
   profile_picture_url?: string;
   created_at: string;
   offered_skills?: string[] | string;
@@ -143,7 +145,7 @@ const OtherUserProfile = () => {
     }
   };
 
-  if (loading) return <p className="mt-10 text-center">Loading...</p>;
+  if (loading) return <OtherUserProfileSkeleton />;
   if (!user) return <p className="mt-10 text-center">User not found</p>;
 
   // Ensure arrays
@@ -219,9 +221,7 @@ const OtherUserProfile = () => {
             : user?.username}
         </h2>
         <p className="text-gray-600">{user.role || 'Role not set'}</p>
-        <p className="text-xs">
-          Joined {new Date(user.created_at).getFullYear()}
-        </p>
+        <p className="text-xs">{user.bio || 'No bio yet'}</p>
       </div>
 
       {/* Send Message Button */}

@@ -6,6 +6,7 @@ import axios from '@/utils/axiosInstance';
 import { useToast } from '@/hooks/useToast';
 import { getStatusColor, getStatusDotColor } from '@/utils/statusColour';
 import type { Proposal } from './ProposalDetails';
+import TradeDetailsSkeleton from '@/components/skeleton/TradeDetailsSkeleton';
 
 interface TradeDetail {
   trade_id: number;
@@ -110,7 +111,7 @@ const TradeDetails = () => {
     }
   };
 
-  if (loading) return <p className="p-10 text-center">Loading trade...</p>;
+  if (loading) return <TradeDetailsSkeleton />;
   if (!trade) return <p className="p-10 text-center">Trade not found.</p>;
 
   const otherUser =

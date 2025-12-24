@@ -18,6 +18,7 @@ import { checkPasswordMatch } from '@/utils/CheckPasswordMatch';
 import { validateEmail } from '@/utils/ValidateEmail';
 import { useEnterKey } from '@/hooks/useEnterKey';
 import { useAuth } from '@/context/AuthContext';
+import { GoogleLogo } from './Login';
 
 // What you send to the API
 interface SignupPayload {
@@ -114,8 +115,9 @@ const Signup = () => {
             {socialLoading === 'google' ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
-              'Sign up with Google'
+              <span className="mr-2">{GoogleLogo}</span>
             )}
+            Sign up with Google
           </Button>
 
           <Button

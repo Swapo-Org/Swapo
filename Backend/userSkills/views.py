@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
+from rest_framework.generics import get_object_or_404
 from .models import UserSkill
 from .serializers import UserSkillSerializer, AddUserSkillSerializer
 
@@ -56,6 +57,30 @@ class AddUserSkillView(APIView):
       }, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteUserSkillView(APIView):
+  permission_classes = [IsAuthenticated]
+
+  def delete(self, request, skill_id):
+    """
+    Delete a user skill by its ID.
+    Only the owner of the skill can delete it.
+    """
+    skill = get_object_or_404(UserSkill, user_skill_id=skill_id)
+
+    # Ensure the logged-in user owns this skill
+    if skill.user != request.user:
+        return Response(
+            {"error": "You do not have permission to delete this skill."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    skill.delete()
+    return Response(
+        {"message": "Skill deleted successfully."},
+        status=status.HTTP_204_NO_CONTENT
+    )
 
 
 """

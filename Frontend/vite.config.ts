@@ -60,8 +60,8 @@ export default defineConfig({
         // Cache your Django API endpoints
         runtimeCaching: [
           {
-            //urlPattern: /^https:\/\/your-api\.com\/api\/.*/i,
-            urlPattern: /^https:\/\/swapo-backend\.onrender\.com\/api\/v1\/.*/i,
+            //urlPattern: /^http:\/\/127.0.0.1:8000\/api\/v1\/.*/i,
+            urlPattern: /^https:\/\/swapo-service\.onrender\.com\/api\/v1\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -72,6 +72,7 @@ export default defineConfig({
               cacheableResponse: {
                 statuses: [0, 200],
               },
+              networkTimeoutSeconds: 10,
             },
           },
         ],

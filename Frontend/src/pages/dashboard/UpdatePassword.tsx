@@ -23,7 +23,7 @@ const UpdatePassword = () => {
           <ChevronLeft size={22} className="text-gray-800 dark:text-white" />
         </button>
         <h1 className="text-lg font-semibold text-gray-900 md:text-xl dark:text-white">
-          Password
+          Update Password
         </h1>
         <div className="w-6" /> {/* Spacer for alignment */}
       </header>
@@ -36,14 +36,14 @@ const UpdatePassword = () => {
             <label className="mb-1 block font-medium text-gray-800 dark:text-white">
               Current Password
             </label>
-            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:bg-gray-500">
+            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:bg-gray-800">
               <Lock className="text-gray-500" size={18} />
               <input
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-transparent text-gray-900 outline-none placeholder:text-gray-400"
+                className="w-full bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
               />
             </div>
           </div>
@@ -53,14 +53,14 @@ const UpdatePassword = () => {
             <label className="mb-1 block font-medium text-gray-800 dark:text-white">
               New Password
             </label>
-            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-500 py-3 pl-4 dark:bg-gray-500">
+            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-500 py-3 pl-4 dark:bg-gray-800">
               <Unlock className="text-gray-500" size={18} />
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-transparent text-gray-900 outline-none placeholder:text-gray-400"
+                className="w-full bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
               />
             </div>
           </div>
@@ -70,14 +70,14 @@ const UpdatePassword = () => {
             <label className="dark:bg-text-white mb-1 block font-medium text-gray-800 dark:text-white">
               Confirm New Password
             </label>
-            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:bg-gray-500">
+            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:bg-gray-800">
               <Asterisk className="text-gray-500 dark:text-white" size={18} />
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-transparent text-gray-900 outline-none placeholder:text-gray-400"
+                className="w-full bg-transparent text-gray-900 outline-none placeholder:text-gray-400 dark:text-white"
               />
             </div>
           </div>

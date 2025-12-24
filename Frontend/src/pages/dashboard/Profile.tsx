@@ -8,12 +8,15 @@ import {
   ThumbsUp,
   Sparkles,
   PlusCircle,
+  X,
 } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '@/utils/axiosInstance';
 import EmptySkillsState from '@/utils/EmptySkillsState';
 import { useToast } from '@/hooks/useToast';
+import ProfileSkeleton from '@/components/skeleton/ProfileSkeleton';
+import { clearAPICache } from '@/utils/cacheUtils';
 
 const nav = ['All', 'Offered Skills', 'Desired Skills', 'Portfolio'];
 
@@ -116,11 +119,13 @@ const SkillsSection = ({
   skills,
   loading,
   onAdd,
+  onDelete,
 }: {
   title: string;
   skills: UserSkill[];
   loading: boolean;
   onAdd: () => void;
+  onDelete: (skillId: number) => void;
 }) => (
   <div>
     <div className="mt-3 mb-6 flex items-center justify-between">
@@ -152,6 +157,14 @@ const SkillsSection = ({
                   {skill.proficiency_level}
                 </span>
               )}
+            </div>
+            {/* Delete button */}
+            <div
+              className="ml-auto cursor-pointer text-gray-400 hover:text-red-500"
+              title="Delete skill"
+              onClick={() => onDelete(skill.user_skill_id)}
+            >
+              <X size={16} />
             </div>
           </div>
         ))}
@@ -407,15 +420,6 @@ const PortfolioSection = ({
                 />
               </a>
 
-              {/* Uploading overlay */}
-              {img.isUploading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                  <span className="text-sm font-semibold text-white">
-                    Uploading…
-                  </span>
-                </div>
-              )}
-
               {/* Delete button only for real images */}
               {!img.isUploading && (
                 <button
@@ -469,6 +473,8 @@ const Profile = () => {
 
   const [portfolioImages, setPortfolioImages] = useState<PortfolioImage[]>([]);
 
+  const { showToast } = useToast();
+
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
@@ -514,6 +520,26 @@ const Profile = () => {
     fetchSkills();
   }, [profile?.user_id]);
 
+  const handleDeleteSkill = async (skillId: number) => {
+    try {
+      await axios.delete(`/user-skills/delete/${skillId}/`);
+
+      setOfferedSkills((prev) =>
+        prev.filter((s) => s.user_skill_id !== skillId),
+      );
+      setDesiredSkills((prev) =>
+        prev.filter((s) => s.user_skill_id !== skillId),
+      );
+      // Clear cache for skills endpoints
+      await clearAPICache('/skills');
+      showToast('Skill deleted successfully!', 'success');
+    } catch (err) {
+      console.error('Failed to delete skill:', err);
+
+      showToast('Failed, please try again', 'error');
+    }
+  };
+
   const onSelectFiles = (selectedFiles: FileList | null) => {
     if (!selectedFiles) return;
     const arr = Array.from(selectedFiles);
@@ -524,8 +550,7 @@ const Profile = () => {
   const removeFile = (idx: number) =>
     setPortfolioFiles((prev) => prev.filter((_, i) => i !== idx));
 
-  if (loading || !profile)
-    return <p className="p-10 text-center">Loading profile...</p>;
+  if (loading || !profile) return <ProfileSkeleton />;
 
   return (
     <div className="mx-auto flex min-h-screen max-w-xl flex-col bg-stone-50/50 py-2 pb-10 dark:bg-gray-900">
@@ -603,6 +628,7 @@ const Profile = () => {
             skills={offeredSkills}
             loading={skillsLoading}
             onAdd={() => navigate('/app/dashboard/profile/add-skills')}
+            onDelete={handleDeleteSkill}
           />
         )}
 
@@ -612,6 +638,7 @@ const Profile = () => {
             skills={desiredSkills}
             loading={skillsLoading}
             onAdd={() => navigate('/app/dashboard/profile/add-skills')}
+            onDelete={handleDeleteSkill}
           />
         )}
 

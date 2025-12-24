@@ -3,6 +3,7 @@ import { useMessageList } from '@/hooks/useMessageList';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ChatWindow from './ChatWindow';
 import { ChevronLeft } from 'lucide-react';
+import MessagesListSkeleton from '@/components/skeleton/MessagesListSkeleton';
 
 const Messages = () => {
   const location = useLocation();
@@ -18,8 +19,7 @@ const Messages = () => {
 
   const { data: chatList = [], isLoading: listLoading } = useMessageList();
 
-  if (listLoading)
-    return <p className="mt-10 text-center">Loading messages...</p>;
+  if (listLoading) return <MessagesListSkeleton />;
 
   return (
     <div className="mx-auto flex h-[calc(100vh-60px)] max-w-4xl bg-stone-50 dark:bg-gray-900">

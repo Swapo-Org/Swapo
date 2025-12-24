@@ -1,5 +1,5 @@
 import { useState, useEffect, type ChangeEvent } from 'react';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import { ChevronLeft, Pencil } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/useToast';
@@ -24,7 +24,7 @@ const EditProfile = () => {
   const [location, setLocation] = useState(user?.location || '');
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch user profile
+  // Fetch user profile
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -32,7 +32,6 @@ const EditProfile = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // ✅ your backend returns { user: {...} }
         const data = res.data.user || res.data;
 
         setName(data.username || '');
@@ -96,17 +95,17 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-white dark:bg-gray-900">
       {/* Header */}
       <header className="mx-auto flex w-full max-w-xl items-center justify-between px-4 py-5 md:px-8">
         <button
           onClick={() => navigate(-1)}
-          className="rounded-full p-2 transition hover:bg-gray-100"
+          className="cursor-pointer rounded-full p-2 transition hover:bg-gray-100 dark:hover:bg-gray-500"
           aria-label="Go back"
         >
-          <ArrowLeft size={22} className="text-gray-800" />
+          <ChevronLeft size={22} className="text-gray-800 dark:text-white" />
         </button>
-        <h1 className="text-lg font-semibold text-gray-900 md:text-xl">
+        <h1 className="text-lg font-semibold text-gray-900 md:text-xl dark:text-white">
           Edit Profile
         </h1>
         <div className="w-6" />
@@ -140,19 +139,19 @@ const EditProfile = () => {
           {/* Form */}
           <form className="w-full space-y-5">
             <div>
-              <label className="mb-1 block font-medium text-gray-800">
+              <label className="mb-1 block font-medium text-gray-800 dark:text-white">
                 Username
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none dark:bg-gray-800 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="mb-1 block font-medium text-gray-800">
+              <label className="mb-1 block font-medium text-gray-800 dark:text-white">
                 First Name
               </label>
               <input
@@ -160,12 +159,12 @@ const EditProfile = () => {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 placeholder="Enter your first name"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none dark:bg-gray-800 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="mb-1 block font-medium text-gray-800">
+              <label className="mb-1 block font-medium text-gray-800 dark:text-white">
                 Last Name
               </label>
               <input
@@ -173,12 +172,12 @@ const EditProfile = () => {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 placeholder="Enter your last name"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none dark:bg-gray-800 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="mb-1 block font-medium text-gray-800">
+              <label className="mb-1 block font-medium text-gray-800 dark:text-white">
                 Role
               </label>
               <input
@@ -186,43 +185,43 @@ const EditProfile = () => {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 placeholder="e.g. Frontend Developer, UI/UX Designer"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none dark:bg-gray-800 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="mb-1 block font-medium text-gray-800">
+              <label className="mb-1 block font-medium text-gray-800 dark:text-white">
                 Bio
               </label>
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
-                className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none dark:bg-gray-800 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="mb-1 block font-medium text-gray-800">
+              <label className="mb-1 block font-medium text-gray-800 dark:text-white">
                 Email
               </label>
               <input
                 type="email"
                 value={email}
                 readOnly
-                className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-500"
+                className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-gray-500 dark:bg-gray-800 dark:text-white"
               />
             </div>
 
             <div>
-              <label className="mb-1 block font-medium text-gray-800">
+              <label className="mb-1 block font-medium text-gray-800 dark:text-white">
                 Location
               </label>
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900 focus:ring-2 focus:ring-red-500 focus:outline-none dark:bg-gray-800 dark:text-white"
               />
             </div>
           </form>
@@ -230,7 +229,7 @@ const EditProfile = () => {
       </main>
 
       {/* Save Button */}
-      <div className="fixed right-0 bottom-0 left-0 border-t border-gray-100 bg-white px-4 py-3 shadow-sm md:px-8">
+      <div className="fixed right-0 bottom-0 left-0 border-t border-gray-100 bg-white px-4 py-3 shadow-sm md:px-8 dark:bg-gray-800">
         <div className="mx-auto max-w-xl">
           <Button
             onClick={handleSave}

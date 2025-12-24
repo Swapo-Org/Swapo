@@ -5,6 +5,7 @@ import axios from '@/utils/axiosInstance';
 import { useToast } from '@/hooks/useToast';
 import Button from '@/components/ui/Button';
 import { getStatusColor, getStatusDotColor } from '@/utils/statusColour';
+import ProposalDetailsSkeleton from '@/components/skeleton/ProposalDetailsSkeleton';
 
 export type Proposal = {
   proposal_id: number;
@@ -101,13 +102,7 @@ const ProposalDetails = () => {
     }
   };
 
-  if (loading)
-    return (
-      <p className="p-5 text-center text-gray-500 dark:text-gray-300">
-        Loading...
-      </p>
-    );
-
+  if (loading) return <ProposalDetailsSkeleton />;
   if (!proposal)
     return (
       <p className="p-5 text-center text-gray-500 dark:text-gray-300">
@@ -117,8 +112,7 @@ const ProposalDetails = () => {
 
   const isRecipient = currentUserId === proposal.recipient;
   const canAcceptOrReject = isRecipient && proposal.status === 'pending';
-  // console.log('proposal', proposal);
-  // console.log('recipient', isRecipient);
+
   return (
     <div className="mx-auto mb-12 max-w-xl p-5">
       {/* Header with back button */}
@@ -176,8 +170,19 @@ const ProposalDetails = () => {
           <span className="font-semibold text-gray-600 dark:text-gray-300">
             Proposer
           </span>
-          <span className="font-medium text-gray-900 capitalize dark:text-gray-100">
-            {proposal.proposer_details?.username || `User ${proposal.proposer}`}
+          <span
+            className="cursor-pointer font-medium text-gray-900 capitalize hover:underline hover:underline-offset-3 dark:text-gray-100"
+            title="View proposer profile"
+            onClick={() =>
+              navigate(
+                `/app/dashboard/profile/${proposal.proposer_details?.user_id}`,
+              )
+            }
+          >
+            {proposal.proposer_details?.first_name &&
+            proposal.proposer_details?.last_name
+              ? `${proposal.proposer_details?.first_name} ${proposal.proposer_details?.last_name}`
+              : proposal.proposer_details?.username}
           </span>
         </div>
 
@@ -186,8 +191,10 @@ const ProposalDetails = () => {
             Recipient
           </span>
           <span className="font-medium text-gray-900 capitalize dark:text-gray-100">
-            {proposal.recipient_details?.username ||
-              `User ${proposal.recipient}`}
+            {proposal.recipient_details?.first_name &&
+            proposal.recipient_details?.last_name
+              ? `${proposal.recipient_details?.first_name} ${proposal.recipient_details?.last_name}`
+              : proposal.recipient_details?.username}
           </span>
         </div>
 
@@ -253,7 +260,7 @@ const ProposalDetails = () => {
 
       {proposal.status === 'accepted' && (
         <div className="mt-5 rounded-lg bg-green-50 p-4 text-center dark:bg-green-900/20">
-          <p className="text-sm font-medium text-green-800 dark:text-green-200">
+          <p className="text-sm font-medium text-green-800 dark:text-green-50">
             This proposal has been accepted and a trade has been created!
           </p>
           <Button

@@ -21,7 +21,7 @@ const account = [
     icon: User2,
     title: 'Profile',
     desc: 'Update your profile information',
-    url: '/app/dashboard/profile',
+    url: '/profile/edit',
   },
   {
     icon: LockKeyhole,

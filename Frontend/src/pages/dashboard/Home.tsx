@@ -14,6 +14,7 @@ import axios from '@/utils/axiosInstance';
 import { getStatusColor, getStatusDotColor } from '@/utils/statusColour';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useMessageList } from '@/hooks/useMessageList';
+import DashboardHomeSkeleton from '@/components/skeleton/DashboardHomeSkeleton';
 
 const quickLinksData = [
   {
@@ -65,7 +66,7 @@ const DashboardHome = () => {
   }, []);
 
   if (loading || !profile) {
-    return <p className="p-10 text-center">Please login</p>;
+    return <DashboardHomeSkeleton />;
   }
 
   // Get the 2 most recent trades for the current user

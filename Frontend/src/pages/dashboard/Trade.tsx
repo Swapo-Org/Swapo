@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useTrades } from '@/hooks/useTrades';
 import { getStatusColor, getStatusDotColor } from '@/utils/statusColour';
+import TradeSkeleton from '@/components/skeleton/TradeSkeleton';
 
 const nav = ['All', 'Pending', 'Active', 'Completed'];
 
@@ -11,7 +12,8 @@ const Trade = () => {
   const [activeTab, setActiveTab] = useState('All');
   const { data: trades = [], isLoading, error } = useTrades();
 
-  if (isLoading) return <p className="mt-10 text-center">Loading...</p>;
+  if (isLoading) return <TradeSkeleton />;
+
   if (error)
     return (
       <p className="mt-10 text-center text-red-500">Failed to load trades</p>
@@ -73,7 +75,7 @@ const Trade = () => {
         ) : (
           filteredTrades.map((trade: any, idx: number) => {
             const otherUser = trade.user1_details || trade.user2_details;
-            console.log('other', otherUser);
+            //    console.log('other', otherUser);
             const tradeName =
               otherUser?.first_name && otherUser?.last_name
                 ? `${otherUser.first_name} ${otherUser.last_name}`

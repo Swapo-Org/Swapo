@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import Button from '@/components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import axios from '@/utils/axiosInstance';
+import ListingPageSkeleton from '@/components/skeleton/ListingPageSkeleton';
 
 const API_BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -106,6 +107,8 @@ const ListingPage = () => {
     return matchesCategory && matchesSearch;
   });
   // /console.log('listings', listings);
+
+  if (loadingListing && listings.length === 0) return <ListingPageSkeleton />;
 
   return (
     <div className="min-h-screen bg-white px-4 pt-5 pb-20 md:px-8 dark:bg-black">
