@@ -129,7 +129,7 @@ const Notifications = () => {
     if (notification.type === 'system_alert') {
       return 'text-red-500 bg-red-50 dark:bg-red-900/20';
     }
-    return 'bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-200';
+    return 'text-gray-700 dark:text-gray-200';
   };
 
   const formatTime = (timestamp: string) => {
@@ -212,14 +212,14 @@ const Notifications = () => {
                               getNotificationIcon(n),
                             )}
                           >
-                            <Bell size={18} />
+                            <Bell size={20} />
                           </div>
                         )}
 
                         {/* Text */}
                         <div className="flex-1">
                           <div className="flex justify-between">
-                            <h3 className="text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                            <h3 className="text-left text-sm font-semibold text-gray-900 md:text-base dark:text-white">
                               {getNotificationTitle(n)}
                             </h3>
                             {!n.is_read && (
@@ -265,12 +265,12 @@ const Notifications = () => {
                               getNotificationIcon(n),
                             )}
                           >
-                            <Bell size={18} />
+                            <Bell size={20} />
                           </div>
                         )}
 
                         <div className="flex-1">
-                          <h3 className="text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                          <h3 className="text-left text-sm font-semibold text-gray-900 md:text-base dark:text-white">
                             {getNotificationTitle(n)}
                           </h3>
                           <p className="mt-0.5 text-left text-sm leading-snug text-gray-600 dark:text-gray-300">
@@ -312,12 +312,12 @@ const Notifications = () => {
                               getNotificationIcon(n),
                             )}
                           >
-                            <Bell size={18} />
+                            <Bell size={20} />
                           </div>
                         )}
 
                         <div className="flex-1">
-                          <h3 className="text-sm font-semibold text-gray-900 md:text-base dark:text-white">
+                          <h3 className="text-left text-sm font-semibold text-gray-900 md:text-base dark:text-white">
                             {getNotificationTitle(n)}
                           </h3>
                           <p className="mt-0.5 text-sm leading-snug text-gray-600 dark:text-gray-300">
