@@ -198,7 +198,35 @@ const ChatWindow = ({
         </div>
 
         {/* Message Input */}
-        <div className="flex items-center space-x-2 border-t border-gray-200 bg-stone-50 px-2 pt-2 dark:border-gray-700 dark:bg-gray-900">
+        {/* <div className="flex items-center space-x-2 border-t border-gray-200 bg-stone-50 px-2 pt-2 dark:border-gray-700 dark:bg-gray-900">
+          <div className="flex flex-1 items-center rounded-full bg-gray-200 px-3 py-2 dark:bg-gray-700">
+            <input
+              type="text"
+              placeholder="Message..."
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              className="flex-1 bg-transparent py-1 pl-2 text-gray-900 placeholder-gray-500 outline-none dark:text-gray-100 dark:placeholder-gray-400"
+            />
+            <div className="flex w-10 items-center justify-center text-gray-500 dark:text-gray-400">
+              <Image size={18} />
+            </div>
+          </div>
+          <div
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-red-800/90 text-white"
+            onClick={handleSend}
+            style={{ transition: 'background-color 0.2s' }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.backgroundColor = '#1d4ed8')
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.backgroundColor = '#2563eb')
+            }
+          >
+            <SendHorizonal size={18} />
+          </div>
+        </div> */}
+
+        <div className="fixed bottom-0 inset-x-0 z-50 flex items-center space-x-2 border-t border-gray-200 bg-stone-50 px-2 pt-2 dark:border-gray-700 dark:bg-gray-900">
           <div className="flex flex-1 items-center rounded-full bg-gray-200 px-3 py-2 dark:bg-gray-700">
             <input
               type="text"
@@ -225,6 +253,7 @@ const ChatWindow = ({
             <SendHorizonal size={18} />
           </div>
         </div>
+
       </div>
     </div>
   );
