@@ -491,7 +491,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('/auth/me');
+        const res = await axios.get('/auth/me/');
         //  console.log('Profile', res.data.user);
         setProfile(res.data.user);
       } catch (err) {

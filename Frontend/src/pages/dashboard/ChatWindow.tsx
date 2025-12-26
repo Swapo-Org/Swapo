@@ -32,7 +32,7 @@ const ChatWindow = ({
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('/auth/me');
+        const res = await axios.get('/auth/me/');
         setProfile(res.data.user);
       } catch (err) {
         console.error('Failed to load user profile:', err);
