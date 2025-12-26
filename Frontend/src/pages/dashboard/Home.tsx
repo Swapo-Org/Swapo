@@ -125,7 +125,7 @@ const DashboardHome = () => {
         const token = localStorage.getItem('authToken');
         console.log('🔑 [Dashboard] Token exists:', !!token);
 
-        const res = await axios.get('/auth/me');
+        const res = await axios.get('/auth/me/');
         console.log('✅ [Dashboard] Profile fetched successfully');
 
         setProfile(res.data.user);
