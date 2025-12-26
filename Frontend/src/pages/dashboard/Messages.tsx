@@ -26,14 +26,16 @@ const Messages = () => {
       {!selectedChatId ? (
         // Chat List
         <div className="flex-1 overflow-y-auto p-4">
-          <ChevronLeft
-            size={28}
-            className="absolute left-2 cursor-pointer text-gray-900 dark:text-gray-100"
-            onClick={() => navigate(-1)}
-          />
-          <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">
-            Chats
-          </h2>
+          <div className="relative mb-8 flex items-center justify-center border-b border-gray-200 pb-4 dark:border-gray-700">
+            <ChevronLeft
+              size={28}
+              className="absolute left-0 cursor-pointer text-gray-900 dark:text-gray-100"
+              onClick={() => navigate(-1)}
+            />
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              Chats
+            </h2>
+          </div>
           {chatList.length === 0 ? (
             <p className="text-gray-500">No messages yet</p>
           ) : (

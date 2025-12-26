@@ -76,19 +76,46 @@ const Signup = () => {
       console.log('Signup success:', response);
 
       if (response.access) {
+        // Save token using AuthContext
         login(response.access, { email: response.email });
         if (response.refresh) {
           localStorage.setItem('refreshToken', response.refresh);
         }
+
+        // iOS Safari fix: Wait for localStorage to complete write
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // iOS Safari fix: Verify token was saved before navigation
+        const savedToken =
+          localStorage.getItem('authToken') || localStorage.getItem('token');
+
+        if (!savedToken) {
+          console.error('Token not saved properly, retrying...');
+          // Retry save
+          localStorage.setItem('authToken', response.access);
+          localStorage.setItem('token', response.access);
+
+          // Wait again
+          await new Promise((resolve) => setTimeout(resolve, 50));
+
+          // Final check
+          const retryCheck = localStorage.getItem('authToken');
+          if (!retryCheck) {
+            showToast('Signup error. Please try again.', 'error');
+            return;
+          }
+        }
+
         showToast('Signup successful! Welcome!', 'success');
-        navigate('/app/onboarding');
+
+        // Use replace to prevent back button issues
+        navigate('/app/onboarding', { replace: true });
       } else {
         showToast('Signup successful, please log in.', 'success');
-        navigate('/login');
+        navigate('/login', { replace: true });
       }
     } catch (error) {
       showToast('Signup failed. Please try again.', 'error');
-      // The useCrud hook automatically sets loading to false in the finally block
     }
   };
 

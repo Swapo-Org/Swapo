@@ -3,7 +3,7 @@ import { ChevronLeft, Phone } from 'lucide-react';
 const ChatWindowSkeleton = () => {
   return (
     <div className="flex flex-1 flex-col bg-stone-50 dark:bg-gray-900">
-      <div className="mb-17 flex flex-col justify-between">
+      <div className="flex flex-col justify-between">
         <div>
           {/* Header Skeleton */}
           <div className="relative flex items-center justify-center border-b border-gray-200 pt-2 pb-4 dark:border-gray-700">

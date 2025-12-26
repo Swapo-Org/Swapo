@@ -90,15 +90,42 @@ const Login = () => {
       const user = response.user || response || {};
 
       if (token) {
+        // Save token using AuthContext
         login(token, user);
+
+        // iOS Safari fix: Wait for localStorage to complete write
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // iOS Safari fix: Verify token was saved before navigation
+        const savedToken =
+          localStorage.getItem('authToken') || localStorage.getItem('token');
+
+        if (!savedToken) {
+          console.error('Token not saved properly, retrying...');
+          // Retry save
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('token', token);
+
+          // Wait again
+          await new Promise((resolve) => setTimeout(resolve, 50));
+
+          // Final check
+          const retryCheck = localStorage.getItem('authToken');
+          if (!retryCheck) {
+            showToast('Login error. Please try again.', 'error');
+            return;
+          }
+        }
+
         showToast('Welcome back!', 'success');
-        navigate('/app/dashboard');
+
+        // Use replace to prevent back button issues
+        navigate('/app/dashboard', { replace: true });
       } else {
         showToast('Invalid login response (no token)', 'error');
       }
     } catch (err) {
       showToast('Login failed. Please check your credentials.', 'error');
-      // The useCrud hook automatically sets loading to false in the finally block
     }
   };
 

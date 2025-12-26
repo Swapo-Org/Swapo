@@ -42,34 +42,91 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const userJson = localStorage.getItem('user');
-    if (token) {
-      setAuthState({
-        isAuthenticated: true,
-        token,
-        user: userJson ? JSON.parse(userJson) : null,
-      });
-    }
-    setLoading(false);
+    // iOS Safari fix: Add small delay to ensure localStorage is ready
+    const initAuth = async () => {
+      try {
+        // Small delay for iOS Safari to initialize storage
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        // Try multiple possible token keys for redundancy
+        const token =
+          localStorage.getItem('authToken') ||
+          localStorage.getItem('token') ||
+          localStorage.getItem('access_token');
+
+        const userJson = localStorage.getItem('user');
+
+        if (token) {
+          setAuthState({
+            isAuthenticated: true,
+            token,
+            user: userJson ? JSON.parse(userJson) : null,
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
   const login = (token: string, user: User) => {
-    localStorage.setItem('authToken', token);
-    if (user) localStorage.setItem('user', JSON.stringify(user));
-    setAuthState({
-      isAuthenticated: true,
-      token,
-      user,
-    });
+    try {
+      // iOS Safari fix: Save to multiple keys for redundancy
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('token', token); // Backup key
+
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
+
+      // iOS Safari fix: Force a sync with a timestamp
+      localStorage.setItem('lastLogin', Date.now().toString());
+
+      // Update state
+      setAuthState({
+        isAuthenticated: true,
+        token,
+        user,
+      });
+
+      // iOS Safari fix: Verify token was actually saved
+      const verify = localStorage.getItem('authToken');
+      if (!verify) {
+        console.error('Token failed to save, retrying...');
+        // Retry once
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('token', token);
+      }
+    } catch (error) {
+      console.error('Error saving auth data:', error);
+      // Still update state even if localStorage fails
+      setAuthState({
+        isAuthenticated: true,
+        token,
+        user,
+      });
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    try {
+      // Clear all possible token keys
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('token');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      localStorage.removeItem('lastLogin');
+    } catch (error) {
+      console.error('Error clearing auth data:', error);
+    }
+
     setAuthState(defaultState);
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   const value: AuthContextType = {
