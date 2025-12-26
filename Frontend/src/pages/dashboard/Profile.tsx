@@ -594,7 +594,10 @@ const Profile = () => {
           </p>
           <p className="mt-[1px] mb-1 text-xs">{profile.bio || 'No bio yet'}</p>
         </div>
-        <Button className="w-full" onClick={() => navigate('/profile/edit')}>
+        <Button
+          className="mb-2 w-full"
+          onClick={() => navigate('/profile/edit')}
+        >
           Edit Profile
         </Button>
       </div>

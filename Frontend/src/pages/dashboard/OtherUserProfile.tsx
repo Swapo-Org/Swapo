@@ -226,7 +226,7 @@ const OtherUserProfile = () => {
 
       {/* Send Message Button */}
       <Button
-        className="mt-6 w-full"
+        className="my-6 w-full"
         onClick={() =>
           navigate('/app/dashboard/messages', {
             state: { userId: user.id, username: user.username },
@@ -238,19 +238,21 @@ const OtherUserProfile = () => {
       </Button>
 
       {/* Tabs */}
-      <nav className="mt-6 mb-4 border-b">
+      <nav className="mt-6 mb-6 border-b border-gray-200 px-4 dark:border-gray-600">
         <ul className="flex justify-start space-x-6 text-sm font-medium">
           {nav.map((link) => (
             <li
               key={link}
-              className={`relative cursor-pointer pb-2 font-bold ${
-                activeTab === link ? 'text-red-500' : 'text-gray-500'
+              className={`relative cursor-pointer pb-6 font-bold transition-colors ${
+                activeTab === link
+                  ? 'text-red-500 dark:text-red-400'
+                  : 'text-gray-500 dark:text-gray-400'
               }`}
               onClick={() => setActiveTab(link)}
             >
               {link}
               {activeTab === link && (
-                <span className="absolute right-0 bottom-0 left-0 mx-auto mt-2 h-[3px] w-full rounded-full bg-red-500"></span>
+                <span className="absolute right-0 bottom-0 left-0 mx-auto mt-2 h-[3px] w-full rounded-full bg-red-500 dark:bg-red-400" />
               )}
             </li>
           ))}

@@ -6,7 +6,7 @@ import {
   Settings,
   Star,
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTrades } from '@/hooks/useTrades';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect, useState } from 'react';
@@ -15,6 +15,7 @@ import { getStatusColor, getStatusDotColor } from '@/utils/statusColour';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useMessageList } from '@/hooks/useMessageList';
 import DashboardHomeSkeleton from '@/components/skeleton/DashboardHomeSkeleton';
+import { useToast } from '@/hooks/useToast';
 
 const quickLinksData = [
   {
@@ -41,31 +42,115 @@ const quickLinksData = [
 
 const DashboardHome = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { isAuthenticated, login } = useAuth();
+  const { showToast } = useToast();
   const { data: trades, isLoading } = useTrades();
   const { data: chatList = [] } = useMessageList();
   const { unreadCount } = useNotifications();
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
+  const [oauthProcessed, setOauthProcessed] = useState(false);
 
+  // Handle OAuth tokens from URL before making any API calls
   useEffect(() => {
+    const handleOAuthTokens = async () => {
+      console.log('🔍 [Dashboard] Checking for OAuth tokens in URL...');
+
+      // Check if we have OAuth tokens in URL
+      const accessToken = searchParams.get('access');
+      const refreshToken = searchParams.get('refresh');
+      const userId = searchParams.get('user_id');
+      const email = searchParams.get('email');
+      const username = searchParams.get('username');
+      const isNew = searchParams.get('is_new');
+
+      if (accessToken) {
+        console.log('🔐 [Dashboard] OAuth tokens found, saving...');
+
+        // Build user object
+        const user: any = {};
+        if (userId) user.user_id = userId;
+        if (email) user.email = email;
+        if (username) user.username = username;
+
+        // Save tokens using AuthContext
+        login(accessToken, user);
+
+        // Save refresh token separately
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+
+        console.log('✅ [Dashboard] Tokens saved to localStorage');
+
+        // Clean up URL (remove tokens from address bar for security)
+        window.history.replaceState({}, '', '/app/dashboard');
+
+        // Show welcome message
+        if (isNew === '1') {
+          showToast(
+            'Welcome to Swapo! Your account has been created.',
+            'success',
+          );
+        } else {
+          showToast(
+            `Welcome back${username ? ` ${username}` : ''}!`,
+            'success',
+          );
+        }
+      } else {
+        console.log('ℹ️ [Dashboard] No OAuth tokens in URL');
+      }
+
+      // Mark OAuth processing as complete
+      setOauthProcessed(true);
+    };
+
+    handleOAuthTokens();
+  }, [searchParams, login, showToast]);
+
+  // Only fetch profile AFTER OAuth tokens have been processed
+  useEffect(() => {
+    if (!oauthProcessed) {
+      console.log('⏳ [Dashboard] Waiting for OAuth processing...');
+      return;
+    }
+
+    console.log('🔄 [Dashboard] OAuth processed, fetching profile...');
+
     const fetchProfile = async () => {
       try {
+        const token = localStorage.getItem('authToken');
+        console.log('🔑 [Dashboard] Token exists:', !!token);
+
         const res = await axios.get('/auth/me');
+        console.log('✅ [Dashboard] Profile fetched successfully');
 
         setProfile(res.data.user);
-      } catch (err) {
-        console.error('Failed to load user profile:', err);
+      } catch (err: any) {
+        console.error('❌ [Dashboard] Failed to load user profile:', err);
+        console.error('❌ [Dashboard] Error details:', {
+          status: err.response?.status,
+          message: err.message,
+        });
+
+        // If 401, user is not authenticated
+        if (err.response?.status === 401) {
+          console.log('🚫 [Dashboard] Unauthorized, redirecting to login...');
+          showToast('Session expired. Please log in again.', 'error');
+          navigate('/login', { replace: true });
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [oauthProcessed, navigate, showToast]);
 
-  if (loading || !profile) {
+  if (!oauthProcessed || loading || !profile) {
     return <DashboardHomeSkeleton />;
   }
 
