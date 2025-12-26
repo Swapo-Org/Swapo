@@ -4,8 +4,8 @@ import { useMessageList } from '@/hooks/useMessageList';
 import { useMessages } from '@/hooks/useMessages';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '@/utils/axiosInstance';
 import ChatWindowSkeleton from '@/components/skeleton/ChatWindowSkeleton';
+import axiosInstance from '@/utils/axiosInstance';
 
 interface ChatWindowProps {
   selectedChatId: number;
@@ -32,7 +32,7 @@ const ChatWindow = ({
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('/auth/me/');
+        const res = await axiosInstance.get('/auth/me/');
         setProfile(res.data.user);
       } catch (err) {
         console.error('Failed to load user profile:', err);
