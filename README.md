@@ -2,7 +2,7 @@
 
 A modern skill-swapping platform that connects people who want to exchange skills and learn from each other.
 
----
+## Video Demo: https://www.youtube.com/watch?v=0o8dSW-YCPY
 
 ## Table of Contents
 
