@@ -33,7 +33,7 @@ const BlockedUsers = () => {
         blocked_first_name: item.blocked_first_name,
         blocked_last_name: item.blocked_last_name,
         img:
-          item.blocked.profile_image ||
+          item.blocked.profile_picture_url ||
           'https://img.icons8.com/office/40/person-male.png',
         blocked_at: new Date(item.block_date).toLocaleDateString('en-US', {
           month: 'short',

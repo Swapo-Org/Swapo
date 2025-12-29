@@ -37,7 +37,7 @@ const UpdatePassword = () => {
               Current Password
             </label>
             <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:bg-gray-800">
-              <Lock className="text-gray-500" size={18} />
+              <Lock className="text-gray-500 dark:text-white" size={18} />
               <input
                 type="password"
                 value={currentPassword}
@@ -53,8 +53,8 @@ const UpdatePassword = () => {
             <label className="mb-1 block font-medium text-gray-800 dark:text-white">
               New Password
             </label>
-            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-500 py-3 pl-4 dark:bg-gray-800">
-              <Unlock className="text-gray-500" size={18} />
+            <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 dark:bg-gray-800">
+              <Unlock className="text-gray-500 dark:text-white" size={18} />
               <input
                 type="password"
                 value={newPassword}
